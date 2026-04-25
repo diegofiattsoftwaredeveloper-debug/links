@@ -22,17 +22,21 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files (frontend)
 app.use(express.static(path.join(__dirname, '.')));
 
-// Session configuration
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'your-secret-key',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false } // Set to true in production with HTTPS
-}));
+// Session configuration (disabled for Vercel serverless)
+if (process.env.VERCEL !== '1') {
+    app.use(session({
+        secret: process.env.SESSION_SECRET || 'your-secret-key',
+        resave: false,
+        saveUninitialized: false,
+        cookie: { secure: false }
+    }));
+}
 
 // Passport configuration
 app.use(passport.initialize());
-app.use(passport.session());
+if (process.env.VERCEL !== '1') {
+    app.use(passport.session());
+}
 
 passport.serializeUser((user, done) => {
     done(null, user.id);
@@ -47,44 +51,44 @@ passport.deserializeUser(async (id, done) => {
     }
 });
 
-// Google OAuth Strategy
-passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:3000/auth/google/callback'
-},
-async (accessToken, refreshToken, profile, done) => {
-    try {
-        // Check if user exists by Google ID
-        let user = await dbOperations.getUserByGoogleId(profile.id);
-        
-        if (user) {
-            return done(null, user);
+// Google OAuth Strategy (only if credentials are provided)
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    passport.use(new GoogleStrategy({
+        clientID: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        callbackURL: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:3000/auth/google/callback'
+    },
+    async (accessToken, refreshToken, profile, done) => {
+        try {
+            // Check if user exists by Google ID
+            let user = await dbOperations.getUserByGoogleId(profile.id);
+            
+            if (user) {
+                return done(null, user);
+            }
+            
+            // Check if user exists by email
+            user = await dbOperations.getUserByEmail(profile.emails[0].value);
+            
+            if (user) {
+                // Link Google account to existing user
+                // You might want to update the user's google_id here
+                return done(null, user);
+            }
+            
+            // Create new user
+            const newUser = await dbOperations.createUser(
+                profile.displayName,
+                profile.emails[0].value,
+                null, // No password for Google users
+                profile.id
+            );
+            return done(null, newUser);
+        } catch (error) {
+            return done(error, null);
         }
-        
-        // Check if user exists by email
-        user = await dbOperations.getUserByEmail(profile.emails[0].value);
-        
-        if (user) {
-            // Link Google account to existing user
-            // You might want to update the user's google_id here
-            return done(null, user);
-        }
-        
-        // Create new user
-        const newUser = await dbOperations.createUser(
-            profile.displayName,
-            profile.emails[0].value,
-            null, // No password for Google users
-            profile.id
-        );
-        
-        done(null, newUser);
-    } catch (error) {
-        done(error, null);
-    }
+    }));
 }
-));
 
 // Initialize database
 initializeDatabase().catch(console.error);
@@ -277,23 +281,25 @@ app.post('/api/reset-password', async (req, res) => {
     }
 });
 
-// Google OAuth Routes
-app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+// Google OAuth Routes (only if credentials are provided AND not on Vercel)
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.env.VERCEL !== '1') {
+    app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
-app.get('/auth/google/callback',
-    passport.authenticate('google', { failureRedirect: '/login' }),
-    async (req, res) => {
-        // Generate JWT token
-        const token = jwt.sign(
-            { id: req.user.id, username: req.user.username },
-            process.env.JWT_SECRET || 'your-secret-key',
-            { expiresIn: '24h' }
-        );
+    app.get('/auth/google/callback',
+        passport.authenticate('google', { failureRedirect: '/login' }),
+        async (req, res) => {
+            // Generate JWT token
+            const token = jwt.sign(
+                { id: req.user.id, username: req.user.username },
+                process.env.JWT_SECRET || 'your-secret-key',
+                { expiresIn: '24h' }
+            );
 
-        // Redirect to frontend with token
-        res.redirect(`/?token=${token}&username=${req.user.username}#/${req.user.username}`);
-    }
-);
+            // Redirect to frontend with token
+            res.redirect(`/?token=${token}&username=${req.user.username}#/${req.user.username}`);
+        }
+    );
+}
 
 // Profile Routes
 
@@ -349,8 +355,13 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    console.log(`Health check: http://localhost:${PORT}/health`);
-});
+// Start server (only if not running on Vercel)
+if (process.env.VERCEL !== '1') {
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+        console.log(`Health check: http://localhost:${PORT}/health`);
+    });
+}
+
+// Export for Vercel
+module.exports = app;
