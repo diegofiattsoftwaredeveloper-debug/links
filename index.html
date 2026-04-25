@@ -531,27 +531,8 @@
         </p>
     </div>
 
-    <!-- Background Edit Button -->
-    <div class="fixed top-20 left-4 z-50 flex flex-col gap-2">
-        <button id="bgEditBtn" class="edit-controls bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg hover:bg-white/30 transition flex items-center gap-2">
-            <i class="fas fa-pencil-alt"></i>
-            <span>Edit Background</span>
-        </button>
-        <button id="fontEditBtn" class="edit-controls bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg hover:bg-white/30 transition flex items-center gap-2">
-            <i class="fas fa-font"></i>
-            <span>Edit Font</span>
-        </button>
-    </div>
-
     <!-- Main Content Area (for NSFW blur) -->
     <div id="mainContentArea">
-        <!-- Edit Mode Toggle -->
-        <div class="fixed top-20 right-4 z-50">
-            <button id="editToggle" class="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg hover:bg-white/30 transition flex items-center gap-2">
-                <div class="w-4 h-4 rounded-full bg-green-500 border-2 border-white" id="editToggleIndicator"></div>
-                <span>Edit Mode</span>
-            </button>
-        </div>
 
     <!-- Background Settings Modal -->
     <div id="bgModal" class="modal">
@@ -1048,21 +1029,11 @@
                 </div>
             </div>
             
-            <div class="mt-4">
-                <button id="googleLoginBtn" class="w-full bg-white text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100 transition flex items-center justify-center gap-2 border">
-                    <img src="https://www.google.com/favicon.ico" class="w-5 h-5" alt="Google">
-                    <span>Sign in with Google</span>
-                </button>
-            </div>
-            
             <div class="flex gap-2 mt-6">
                 <button id="closeLoginModal" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">Cancel</button>
                 <button id="loginBtn" class="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Login</button>
             </div>
             
-            <p class="text-center text-sm text-gray-500 mt-4">
-                <a href="#" id="showForgotPasswordBtn" class="text-blue-500 hover:underline">Forgot password?</a>
-            </p>
             
             <p class="text-center text-sm text-gray-500 mt-2">
                 Don't have an account? <a href="#" id="showRegisterBtn" class="text-blue-500 hover:underline">Register</a>
@@ -1079,10 +1050,6 @@
                 <div>
                     <label class="block text-sm font-medium mb-1">Username</label>
                     <input type="text" id="registerUsername" class="w-full border rounded-lg px-3 py-2" placeholder="Choose a username">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Email (optional)</label>
-                    <input type="email" id="registerEmail" class="w-full border rounded-lg px-3 py-2" placeholder="Enter your email">
                 </div>
                 <div>
                     <label class="block text-sm font-medium mb-1">Password</label>
@@ -1105,55 +1072,6 @@
         </div>
     </div>
 
-    <!-- Forgot Password Modal -->
-    <div id="forgotPasswordModal" class="modal">
-        <div class="modal-content" style="max-width: 400px;">
-            <h2 class="text-xl font-bold mb-4">Reset Password</h2>
-            
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium mb-1">Email</label>
-                    <input type="email" id="forgotEmail" class="w-full border rounded-lg px-3 py-2" placeholder="Enter your email">
-                </div>
-            </div>
-            
-            <div class="flex gap-2 mt-6">
-                <button id="closeForgotPasswordModal" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">Cancel</button>
-                <button id="sendOTPBtn" class="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Send OTP</button>
-            </div>
-            
-            <p class="text-center text-sm text-gray-500 mt-4">
-                <a href="#" id="showLoginFromForgotBtn" class="text-blue-500 hover:underline">Back to Login</a>
-            </p>
-        </div>
-    </div>
-
-    <!-- Reset Password Modal -->
-    <div id="resetPasswordModal" class="modal">
-        <div class="modal-content" style="max-width: 400px;">
-            <h2 class="text-xl font-bold mb-4">Enter OTP & New Password</h2>
-            
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium mb-1">OTP Code</label>
-                    <input type="text" id="resetOTP" class="w-full border rounded-lg px-3 py-2" placeholder="Enter 6-digit code" maxlength="6">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">New Password</label>
-                    <input type="password" id="resetNewPassword" class="w-full border rounded-lg px-3 py-2" placeholder="Enter new password">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Confirm Password</label>
-                    <input type="password" id="resetConfirmPassword" class="w-full border rounded-lg px-3 py-2" placeholder="Confirm new password">
-                </div>
-            </div>
-            
-            <div class="flex gap-2 mt-6">
-                <button id="closeResetPasswordModal" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">Cancel</button>
-                <button id="resetPasswordBtn" class="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Reset Password</button>
-            </div>
-        </div>
-    </div>
 
     <!-- Sidebar Item Modal -->
     <div id="sidebarItemModal" class="modal">
@@ -1364,8 +1282,8 @@
 
         <!-- Footer -->
         <div class="text-center mt-8 text-white/60 text-sm animate-fade-in-up animate-delay-5">
-            <p class="editable" id="footerText" contenteditable="false">© 2024 John Doe. All rights reserved.</p>
-            <p class="mt-2">Made with ❤️</p>
+            <p class="editable" id="footerText" contenteditable="false"> 2024 John Doe. All rights reserved.</p>
+            <p class="mt-2">Made with </p>
         </div>
         </div>
         
@@ -2052,37 +1970,6 @@
             });
         }
 
-        // Edit mode toggle
-        document.getElementById('editToggle').addEventListener('click', () => {
-            if (isAuthenticated && currentUser === profileOwner) {
-                // User is authenticated and is the profile owner
-                isEditMode = !isEditMode;
-                document.body.classList.toggle('edit-mode', isEditMode);
-                document.getElementById('editToggle').innerHTML = isEditMode 
-                    ? '<i class="fas fa-check mr-2"></i>Done Editing'
-                    : '<i class="fas fa-edit mr-2"></i>Edit Mode';
-                
-                // Enable/disable contenteditable
-                document.querySelectorAll('.editable').forEach(el => {
-                    el.contentEditable = isEditMode;
-                });
-                
-                // Re-render sidebars (handles mobile/desktop logic)
-                renderSidebarItems();
-                
-                if (!isEditMode) {
-                    saveToStorage();
-                    saveProfileToAPI();
-                }
-            } else if (!isAuthenticated) {
-                // Not authenticated, show login modal
-                document.getElementById('loginModal').classList.add('active');
-            } else {
-                // Authenticated but not the owner
-                alert('You can only edit your own profile. Create your own profile to edit!');
-            }
-        });
-
         // Login button handler
         document.getElementById('loginBtn').addEventListener('click', async () => {
             const username = document.getElementById('loginUsername').value;
@@ -2121,22 +2008,7 @@
                 // Load profile data from API
                 await loadProfileFromAPI();
                 
-                // Enable edit mode after successful login
-                isEditMode = true;
-                document.body.classList.add('edit-mode');
-                document.getElementById('editToggle').innerHTML = '<i class="fas fa-check mr-2"></i>Done Editing';
-                
-                // Enable contenteditable
-                document.querySelectorAll('.editable').forEach(el => {
-                    el.contentEditable = true;
-                });
-                
-                // Show sidebars
-                document.getElementById('leftSidebar').classList.remove('hidden');
-                document.getElementById('rightSidebar').classList.remove('hidden');
-                renderSidebarItems();
-                
-                alert('Login successful! Edit mode enabled.');
+                alert('Login successful!');
             } catch (error) {
                 alert(error.message || 'Login failed. Please try again.');
             }
@@ -2149,118 +2021,11 @@
             document.getElementById('loginPassword').value = '';
         });
 
-        // Google login button
-        document.getElementById('googleLoginBtn').addEventListener('click', () => {
-            window.location.href = `${API_BASE_URL}/auth/google`;
-        });
 
         // Join Now button
         document.getElementById('joinNowBtn').addEventListener('click', (e) => {
             e.preventDefault();
             document.getElementById('registerModal').classList.add('active');
-        });
-
-        // Show forgot password modal
-        document.getElementById('showForgotPasswordBtn').addEventListener('click', (e) => {
-            e.preventDefault();
-            document.getElementById('loginModal').classList.remove('active');
-            document.getElementById('forgotPasswordModal').classList.add('active');
-        });
-
-        // Show login from forgot password
-        document.getElementById('showLoginFromForgotBtn').addEventListener('click', (e) => {
-            e.preventDefault();
-            document.getElementById('forgotPasswordModal').classList.remove('active');
-            document.getElementById('loginModal').classList.add('active');
-        });
-
-        // Close forgot password modal
-        document.getElementById('closeForgotPasswordModal').addEventListener('click', () => {
-            document.getElementById('forgotPasswordModal').classList.remove('active');
-            document.getElementById('forgotEmail').value = '';
-        });
-
-        // Send OTP button
-        document.getElementById('sendOTPBtn').addEventListener('click', async () => {
-            const email = document.getElementById('forgotEmail').value;
-            
-            if (!email) {
-                alert('Please enter your email');
-                return;
-            }
-            
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/forgot-password`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    alert(data.message);
-                    document.getElementById('forgotPasswordModal').classList.remove('active');
-                    document.getElementById('resetPasswordModal').classList.add('active');
-                    // Store email for reset
-                    document.getElementById('resetPasswordModal').dataset.email = email;
-                } else {
-                    throw new Error(data.error || 'Failed to send OTP');
-                }
-            } catch (error) {
-                alert(error.message || 'Failed to send OTP');
-            }
-        });
-
-        // Close reset password modal
-        document.getElementById('closeResetPasswordModal').addEventListener('click', () => {
-            document.getElementById('resetPasswordModal').classList.remove('active');
-            document.getElementById('resetOTP').value = '';
-            document.getElementById('resetNewPassword').value = '';
-            document.getElementById('resetConfirmPassword').value = '';
-        });
-
-        // Reset password button
-        document.getElementById('resetPasswordBtn').addEventListener('click', async () => {
-            const email = document.getElementById('resetPasswordModal').dataset.email;
-            const otp = document.getElementById('resetOTP').value;
-            const newPassword = document.getElementById('resetNewPassword').value;
-            const confirmPassword = document.getElementById('resetConfirmPassword').value;
-            
-            if (!otp || !newPassword) {
-                alert('Please enter OTP and new password');
-                return;
-            }
-            
-            if (newPassword !== confirmPassword) {
-                alert('Passwords do not match');
-                return;
-            }
-            
-            if (newPassword.length < 6) {
-                alert('Password must be at least 6 characters');
-                return;
-            }
-            
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/reset-password`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, otp, newPassword })
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    alert(data.message);
-                    document.getElementById('resetPasswordModal').classList.remove('active');
-                    document.getElementById('loginModal').classList.add('active');
-                } else {
-                    throw new Error(data.error || 'Failed to reset password');
-                }
-            } catch (error) {
-                alert(error.message || 'Failed to reset password');
-            }
         });
 
         // Show register modal
@@ -2281,7 +2046,6 @@
         document.getElementById('closeRegisterModal').addEventListener('click', () => {
             document.getElementById('registerModal').classList.remove('active');
             document.getElementById('registerUsername').value = '';
-            document.getElementById('registerEmail').value = '';
             document.getElementById('registerPassword').value = '';
             document.getElementById('registerConfirmPassword').value = '';
         });
@@ -2289,7 +2053,6 @@
         // Register button handler
         document.getElementById('registerBtn').addEventListener('click', async () => {
             const username = document.getElementById('registerUsername').value;
-            const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
             const confirmPassword = document.getElementById('registerConfirmPassword').value;
             
@@ -2312,7 +2075,7 @@
                 const response = await fetch(`${API_BASE_URL}/api/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, email, password })
+                    body: JSON.stringify({ username, password })
                 });
                 
                 const data = await response.json();
@@ -2336,22 +2099,7 @@
                 // Load profile data from API
                 await loadProfileFromAPI();
                 
-                // Enable edit mode after successful registration
-                isEditMode = true;
-                document.body.classList.add('edit-mode');
-                document.getElementById('editToggle').innerHTML = '<i class="fas fa-check mr-2"></i>Done Editing';
-                
-                // Enable contenteditable
-                document.querySelectorAll('.editable').forEach(el => {
-                    el.contentEditable = true;
-                });
-                
-                // Show sidebars
-                document.getElementById('leftSidebar').classList.remove('hidden');
-                document.getElementById('rightSidebar').classList.remove('hidden');
-                renderSidebarItems();
-                
-                alert('Registration successful! Edit mode enabled.');
+                alert('Registration successful!');
             } catch (error) {
                 alert(error.message || 'Registration failed. Please try again.');
             }
@@ -3366,17 +3114,8 @@
                     }
                     if (modal.id === 'registerModal') {
                         document.getElementById('registerUsername').value = '';
-                        document.getElementById('registerEmail').value = '';
                         document.getElementById('registerPassword').value = '';
                         document.getElementById('registerConfirmPassword').value = '';
-                    }
-                    if (modal.id === 'forgotPasswordModal') {
-                        document.getElementById('forgotEmail').value = '';
-                    }
-                    if (modal.id === 'resetPasswordModal') {
-                        document.getElementById('resetOTP').value = '';
-                        document.getElementById('resetNewPassword').value = '';
-                        document.getElementById('resetConfirmPassword').value = '';
                     }
                 }
             });
