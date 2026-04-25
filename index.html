@@ -1413,7 +1413,8 @@
         let profileOwner = null; // Username of the profile being viewed
         let isNSFW = false; // NSFW status of the profile
         let ageConfirmed = false; // User has confirmed age
-        const API_BASE_URL = 'http://localhost:3001';
+        // Use relative URL for API (works on both localhost and production)
+        const API_BASE_URL = window.location.origin;
         let bgSettings = {
             size: 'cover',
             repeat: 'no-repeat',

@@ -6,6 +6,7 @@ const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const session = require('express-session');
 const crypto = require('crypto');
+const path = require('path');
 require('dotenv').config();
 
 const { initializeDatabase, dbOperations } = require('./database');
@@ -17,6 +18,9 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Serve static files (frontend)
+app.use(express.static(path.join(__dirname, '.')));
 
 // Session configuration
 app.use(session({
@@ -333,11 +337,16 @@ app.put('/api/profile', authenticateToken, async (req, res) => {
         
         await dbOperations.saveProfile(req.user.id, profileData);
 
-        res.json({ success: true, message: 'Profile saved successfully' });
+        res.json({ success: true });
     } catch (error) {
         console.error('Save profile error:', error);
         res.status(500).json({ error: 'Failed to save profile' });
     }
+});
+
+// Catch-all route to serve index.html for SPA routing
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Start server
