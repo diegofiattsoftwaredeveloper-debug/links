@@ -1,0 +1,3480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link in Bio - Editable</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&family=Inter:wght@300;400;500;600;700;800&family=Lato&family=Lobster&family=Montserrat&family=Open+Sans&family=Oswald&family=Pacifico&family=Playfair+Display&family=Poppins&family=Raleway&family=Roboto&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .link-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .link-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .social-icon {
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .social-icon:hover {
+            transform: scale(1.1);
+        }
+        
+        .social-icon-wrapper {
+            position: relative;
+        }
+        
+        .social-tooltip {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index: 20;
+        }
+        
+        .social-icon-wrapper:hover .social-tooltip {
+            opacity: 1;
+        }
+        
+        .edit-mode .social-tooltip {
+            pointer-events: auto;
+            cursor: pointer;
+            background: rgba(59, 130, 246, 0.9);
+        }
+        
+        .edit-mode .social-tooltip:hover {
+            background: rgba(59, 130, 246, 1);
+        }
+        
+        .edit-controls {
+            display: none !important;
+        }
+        
+        .edit-mode .edit-controls {
+            display: flex !important;
+        }
+        
+        .edit-mode .editable {
+            outline: 2px dashed rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+        }
+
+        .nsfw-blurred {
+            filter: blur(20px);
+            pointer-events: none;
+            user-select: none;
+        }
+        
+        .remove-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+            z-index: 10;
+        }
+        
+        .edit-mode .remove-btn {
+            display: flex;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        
+        .animate-delay-1 { animation-delay: 0.1s; opacity: 0; }
+        .animate-delay-2 { animation-delay: 0.2s; opacity: 0; }
+        .animate-delay-3 { animation-delay: 0.3s; opacity: 0; }
+        .animate-delay-4 { animation-delay: 0.4s; opacity: 0; }
+        .animate-delay-5 { animation-delay: 0.5s; opacity: 0; }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .bg-white\/10, .bg-white-10 {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        
+        .bg-white\/20, .bg-white-20 {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+        
+        .bg-white\/30, .bg-white-30 {
+            background: rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+        }
+        
+        .bg-red-500\/20, .bg-red-500-20 {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .bg-pink-500\/20, .bg-pink-500-20 {
+            background: rgba(236, 72, 153, 0.2);
+            border: 1px solid rgba(236, 72, 153, 0.3);
+        }
+        
+        .bg-yellow-500\/20, .bg-yellow-500-20 {
+            background: rgba(234, 179, 8, 0.2);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+        }
+        
+        .bg-blue-500\/20, .bg-blue-500-20 {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        
+        .bg-green-500\/20, .bg-green-500-20 {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        
+        .bg-purple-500\/20, .bg-purple-500-20 {
+            background: rgba(168, 85, 247, 0.2);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+        
+        /* Matte styles */
+        .card-matte {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: none;
+        }
+        
+        .card-matte-dark {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: none;
+        }
+        
+        /* Shiny styles */
+        .card-shiny {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.3) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+        }
+        
+        .card-shiny-gold {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.3) 0%, rgba(255, 215, 0, 0.1) 50%, rgba(255, 215, 0, 0.3) 100%);
+            border: 1px solid rgba(255, 215, 0, 0.5);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+        
+        .card-shiny-silver {
+            background: linear-gradient(135deg, rgba(192, 192, 192, 0.3) 0%, rgba(192, 192, 192, 0.1) 50%, rgba(192, 192, 192, 0.3) 100%);
+            border: 1px solid rgba(192, 192, 192, 0.5);
+            box-shadow: 0 4px 15px rgba(192, 192, 192, 0.3);
+        }
+        
+        /* Metal styles */
+        .card-metal-gold {
+            background: linear-gradient(45deg, #b8860b 0%, #ffd700 25%, #b8860b 50%, #ffd700 75%, #b8860b 100%);
+            border: 2px solid #8b6914;
+            box-shadow: 0 4px 15px rgba(184, 134, 11, 0.4);
+        }
+        
+        .card-metal-gold h3,
+        .card-metal-gold p {
+            color: #2d3436 !important;
+        }
+        
+        .card-metal-silver {
+            background: linear-gradient(45deg, #708090 0%, #c0c0c0 25%, #708090 50%, #c0c0c0 75%, #708090 100%);
+            border: 2px solid #4a5568;
+            box-shadow: 0 4px 15px rgba(112, 128, 144, 0.4);
+        }
+        
+        .card-metal-silver h3,
+        .card-metal-silver p {
+            color: #2d3436 !important;
+        }
+        
+        .card-metal-bronze {
+            background: linear-gradient(45deg, #8b4513 0%, #cd7f32 25%, #8b4513 50%, #cd7f32 75%, #8b4513 100%);
+            border: 2px solid #654321;
+            box-shadow: 0 4px 15px rgba(139, 69, 19, 0.4);
+        }
+        
+        .card-metal-bronze h3,
+        .card-metal-bronze p {
+            color: #2d3436 !important;
+        }
+        
+        .card-metal-copper {
+            background: linear-gradient(45deg, #b87333 0%, #da8a67 25%, #b87333 50%, #da8a67 75%, #b87333 100%);
+            border: 2px solid #8b5a2b;
+            box-shadow: 0 4px 15px rgba(184, 115, 51, 0.4);
+        }
+        
+        .card-metal-copper h3,
+        .card-metal-copper p {
+            color: #2d3436 !important;
+        }
+        
+        /* Cartoon styles */
+        .card-cartoon {
+            background: linear-gradient(180deg, #ff6b6b 0%, #feca57 100%);
+            border: 3px solid #2d3436;
+            box-shadow: 4px 4px 0 #2d3436;
+            transform: rotate(-1deg);
+        }
+        
+        .card-cartoon h3,
+        .card-cartoon p {
+            color: #2d3436 !important;
+        }
+        
+        .card-cartoon-blue {
+            background: linear-gradient(180deg, #74b9ff 0%, #0984e3 100%);
+            border: 3px solid #2d3436;
+            box-shadow: 4px 4px 0 #2d3436;
+            transform: rotate(1deg);
+        }
+        
+        .card-cartoon-blue h3,
+        .card-cartoon-blue p {
+            color: #2d3436 !important;
+        }
+        
+        .card-cartoon-purple {
+            background: linear-gradient(180deg, #a29bfe 0%, #6c5ce7 100%);
+            border: 3px solid #2d3436;
+            box-shadow: 4px 4px 0 #2d3436;
+            transform: rotate(-2deg);
+        }
+        
+        .card-cartoon-purple h3,
+        .card-cartoon-purple p {
+            color: #2d3436 !important;
+        }
+        
+        /* Glow styles */
+        .card-glow-blue {
+            background: rgba(59, 130, 246, 0.2);
+            border: 2px solid rgba(59, 130, 246, 0.5);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.3);
+            animation: glow-pulse-blue 2s ease-in-out infinite;
+        }
+        
+        .card-glow-pink {
+            background: rgba(236, 72, 153, 0.2);
+            border: 2px solid rgba(236, 72, 153, 0.5);
+            box-shadow: 0 0 20px rgba(236, 72, 153, 0.5), 0 0 40px rgba(236, 72, 153, 0.3);
+            animation: glow-pulse-pink 2s ease-in-out infinite;
+        }
+        
+        .card-glow-green {
+            background: rgba(34, 197, 94, 0.2);
+            border: 2px solid rgba(34, 197, 94, 0.5);
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.5), 0 0 40px rgba(34, 197, 94, 0.3);
+            animation: glow-pulse-green 2s ease-in-out infinite;
+        }
+        
+        .card-glow-rainbow {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.3), 0 0 30px rgba(0, 255, 0, 0.3), 0 0 40px rgba(0, 0, 255, 0.3);
+            animation: rainbow-glow 3s linear infinite;
+        }
+        
+        /* 3D Comic styles */
+        .card-bouncy {
+            background: linear-gradient(180deg, #ff9ff3 0%, #fecfef 100%);
+            border: 3px solid #ff6b9d;
+            border-radius: 12px;
+            box-shadow: 0 4px 0 #ff6b9d, 0 6px 10px rgba(255, 107, 157, 0.2);
+        }
+        
+        .card-bouncy h3,
+        .card-bouncy p {
+            color: #2d3436 !important;
+        }
+        
+        .card-bouncy-blue {
+            background: linear-gradient(180deg, #74b9ff 0%, #0984e3 100%);
+            border: 3px solid #0984e3;
+            border-radius: 12px;
+            box-shadow: 0 4px 0 #0984e3, 0 6px 10px rgba(9, 132, 227, 0.2);
+        }
+        
+        .card-bouncy-blue h3,
+        .card-bouncy-blue p {
+            color: #2d3436 !important;
+        }
+        
+        .card-bouncy-yellow {
+            background: linear-gradient(180deg, #feca57 0%, #ff9f43 100%);
+            border: 3px solid #ff9f43;
+            border-radius: 12px;
+            box-shadow: 0 4px 0 #ff9f43, 0 6px 10px rgba(255, 159, 67, 0.2);
+        }
+        
+        .card-bouncy-yellow h3,
+        .card-bouncy-yellow p {
+            color: #2d3436 !important;
+        }
+        
+        @keyframes glow-pulse-blue {
+            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.7), 0 0 60px rgba(59, 130, 246, 0.5); }
+        }
+        
+        @keyframes glow-pulse-pink {
+            0%, 100% { box-shadow: 0 0 20px rgba(236, 72, 153, 0.5), 0 0 40px rgba(236, 72, 153, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(236, 72, 153, 0.7), 0 0 60px rgba(236, 72, 153, 0.5); }
+        }
+        
+        @keyframes glow-pulse-green {
+            0%, 100% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.5), 0 0 40px rgba(34, 197, 94, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(34, 197, 94, 0.7), 0 0 60px rgba(34, 197, 94, 0.5); }
+        }
+        
+        @keyframes rainbow-glow {
+            0% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.5), 0 0 30px rgba(0, 255, 0, 0.3), 0 0 40px rgba(0, 0, 255, 0.3); }
+            33% { box-shadow: 0 0 20px rgba(0, 255, 0, 0.5), 0 0 30px rgba(0, 0, 255, 0.3), 0 0 40px rgba(255, 0, 0, 0.3); }
+            66% { box-shadow: 0 0 20px rgba(0, 0, 255, 0.5), 0 0 30px rgba(255, 0, 0, 0.3), 0 0 40px rgba(0, 255, 0, 0.3); }
+            100% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.5), 0 0 30px rgba(0, 255, 0, 0.3), 0 0 40px rgba(0, 0, 255, 0.3); }
+        }
+        
+        /* Icon shapes */
+        .shape-circle {
+            border-radius: 50%;
+        }
+        
+        .shape-rounded-square {
+            border-radius: 12px;
+        }
+        
+        .shape-square {
+            border-radius: 0;
+        }
+        
+        .shape-diamond {
+            transform: rotate(45deg);
+        }
+        
+        .shape-star {
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+        }
+        
+        .shape-hexagon {
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+        }
+        
+        .shape-octagon {
+            clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+        }
+        
+        .shape-heart {
+            clip-path: polygon(50% 15%, 65% 0%, 100% 15%, 100% 50%, 50% 100%, 0% 50%, 0% 15%, 35% 0%);
+        }
+        
+        .shape-triangle {
+            clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+        }
+        
+        .shape-pentagon {
+            clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+        }
+        
+        .shape-rhomboid {
+            clip-path: polygon(25% 0%, 100% 0%, 75% 100%, 0% 100%);
+        }
+        
+        .shape-shield {
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+        }
+        
+        .shape-option:hover {
+            border-color: #3b82f6 !important;
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+        
+        .shape-option.selected {
+            border-color: #3b82f6 !important;
+            background-color: rgba(59, 130, 246, 0.2);
+        }
+        
+        .profile-img {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 400px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .color-option:hover, .color-option.selected {
+            border-color: white;
+            transform: scale(1.1);
+        }
+        
+        .gallery-img {
+            aspect-ratio: 1;
+            object-fit: cover;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .upload-label {
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen" id="main-body">
+    <!-- NSFW Warning Overlay -->
+    <div id="nsfwWarning" class="fixed inset-0 bg-black/90 z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-gray-900 border border-red-500 rounded-2xl p-8 max-w-md text-center">
+            <div class="text-6xl mb-4">⚠️</div>
+            <h2 class="text-2xl font-bold text-red-500 mb-4">Mature Content Warning</h2>
+            <p class="text-white mb-6">The content in this page is for a mature audience. Please make sure you are 18 years or older to view this content.</p>
+            <button id="confirmAgeBtn" class="bg-red-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-red-700 transition">
+                I am 18 or older - Enter
+            </button>
+            <p class="text-gray-400 text-sm mt-4">By entering, you confirm that you are of legal age to view this content.</p>
+        </div>
+    </div>
+
+    <!-- Join for Free Banner -->
+    <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 text-center" id="joinBanner">
+        <p class="text-sm font-medium">
+            Join for free and add all your links in one place
+            <a href="#" id="joinNowBtn" class="ml-2 bg-white text-blue-600 px-4 py-1 rounded-full text-sm font-semibold hover:bg-gray-100 transition">
+                Get Started
+            </a>
+        </p>
+    </div>
+
+    <!-- Background Edit Button -->
+    <div class="fixed top-20 left-4 z-50 flex flex-col gap-2">
+        <button id="bgEditBtn" class="edit-controls bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg hover:bg-white/30 transition flex items-center gap-2">
+            <i class="fas fa-pencil-alt"></i>
+            <span>Edit Background</span>
+        </button>
+        <button id="fontEditBtn" class="edit-controls bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg hover:bg-white/30 transition flex items-center gap-2">
+            <i class="fas fa-font"></i>
+            <span>Edit Font</span>
+        </button>
+    </div>
+
+    <!-- Main Content Area (for NSFW blur) -->
+    <div id="mainContentArea">
+        <!-- Edit Mode Toggle -->
+        <div class="fixed top-20 right-4 z-50">
+            <button id="editToggle" class="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg hover:bg-white/30 transition flex items-center gap-2">
+                <div class="w-4 h-4 rounded-full bg-green-500 border-2 border-white" id="editToggleIndicator"></div>
+                <span>Edit Mode</span>
+            </button>
+        </div>
+
+    <!-- Background Settings Modal -->
+    <div id="bgModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <h2 class="text-xl font-bold mb-4">Background Settings</h2>
+            
+            <div class="mb-6">
+                <h3 class="font-semibold mb-2">Gradient Colors</h3>
+                <div class="flex gap-2 flex-wrap">
+                    <div class="color-option" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)" data-bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"></div>
+                    <div class="color-option" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)" data-bg="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"></div>
+                    <div class="color-option" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)" data-bg="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"></div>
+                    <div class="color-option" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)" data-bg="linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)"></div>
+                    <div class="color-option" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%)" data-bg="linear-gradient(135deg, #fa709a 0%, #fee140 100%)"></div>
+                    <div class="color-option" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)" data-bg="linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)"></div>
+                    <div class="color-option" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)" data-bg="linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)"></div>
+                    <div class="color-option" style="background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%)" data-bg="linear-gradient(135deg, #ff6b6b 0%, #feca57 100%)"></div>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="font-semibold mb-2">Solid Color</h3>
+                <div class="flex items-center gap-4">
+                    <input type="color" id="bgSolidColor" class="w-16 h-16 rounded-lg cursor-pointer border-2 border-gray-300" value="#667eea">
+                    <span class="text-sm text-gray-600">Click to choose custom color</span>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="font-semibold mb-2">Upload Image</h3>
+                <label class="upload-label bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 w-full justify-center">
+                    <i class="fas fa-upload"></i>
+                    <span>Choose Image</span>
+                    <input type="file" id="bgUpload" accept="image/*">
+                </label>
+            </div>
+            
+            <div id="bgImageControls" class="mb-6 hidden">
+                <h3 class="font-semibold mb-2">Image Settings</h3>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Size</label>
+                        <select id="bgSize" class="w-full border rounded-lg px-3 py-2">
+                            <option value="cover">Cover (fill screen)</option>
+                            <option value="contain">Contain (fit screen)</option>
+                            <option value="auto">Auto (original size)</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Repeat</label>
+                        <select id="bgRepeat" class="w-full border rounded-lg px-3 py-2">
+                            <option value="no-repeat">No Repeat</option>
+                            <option value="repeat">Repeat (tile)</option>
+                            <option value="repeat-x">Repeat Horizontal</option>
+                            <option value="repeat-y">Repeat Vertical</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Position</label>
+                        <select id="bgPosition" class="w-full border rounded-lg px-3 py-2">
+                            <option value="center center">Center</option>
+                            <option value="top center">Top Center</option>
+                            <option value="bottom center">Bottom Center</option>
+                            <option value="left center">Left Center</option>
+                            <option value="right center">Right Center</option>
+                            <option value="top left">Top Left</option>
+                            <option value="top right">Top Right</option>
+                            <option value="bottom left">Bottom Left</option>
+                            <option value="bottom right">Bottom Right</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Attachment</label>
+                        <select id="bgAttachment" class="w-full border rounded-lg px-3 py-2">
+                            <option value="scroll">Scroll (moves with page)</option>
+                            <option value="fixed">Fixed (stays in place)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex gap-2 mt-6">
+                <button id="closeBgModal" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">Cancel</button>
+                <button id="clearBg" class="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Clear Custom</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Font Settings Modal -->
+    <div id="fontModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <h2 class="text-xl font-bold mb-4">Font Settings</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Font Family</label>
+                    <select id="fontFamily" class="w-full border rounded-lg px-3 py-2">
+                        <option value="system-ui, -apple-system, sans-serif">System Default</option>
+                        <option value="Arial, sans-serif">Arial</option>
+                        <option value="'Helvetica Neue', Helvetica, Arial, sans-serif">Helvetica</option>
+                        <option value="Georgia, serif">Georgia</option>
+                        <option value="'Times New Roman', Times, serif">Times New Roman</option>
+                        <option value="'Courier New', Courier, monospace">Courier New</option>
+                        <option value="Verdana, sans-serif">Verdana</option>
+                        <option value="Tahoma, sans-serif">Tahoma</option>
+                        <option value="Trebuchet MS, sans-serif">Trebuchet MS</option>
+                        <option value="'Palatino Linotype', 'Book Antiqua', Palatino, serif">Palatino</option>
+                        <option value="'Lucida Sans Unicode', 'Lucida Grande', sans-serif">Lucida Sans</option>
+                        <option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">Segoe UI</option>
+                        <option value="'Roboto', sans-serif">Roboto</option>
+                        <option value="'Open Sans', sans-serif">Open Sans</option>
+                        <option value="'Lato', sans-serif">Lato</option>
+                        <option value="'Montserrat', sans-serif">Montserrat</option>
+                        <option value="'Poppins', sans-serif">Poppins</option>
+                        <option value="'Oswald', sans-serif">Oswald</option>
+                        <option value="'Playfair Display', serif">Playfair Display</option>
+                        <option value="'Raleway', sans-serif">Raleway</option>
+                        <option value="'Dancing Script', cursive">Dancing Script</option>
+                        <option value="'Pacifico', cursive">Pacifico</option>
+                        <option value="'Lobster', cursive">Lobster</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-1">Font Color</label>
+                    <div class="flex items-center gap-4">
+                        <input type="color" id="fontColor" class="w-16 h-16 rounded-lg cursor-pointer border-2 border-gray-300" value="#ffffff">
+                        <span class="text-sm text-gray-600">Click to choose color</span>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-1">Font Size</label>
+                    <input type="range" id="fontSize" class="w-full" min="12" max="24" value="18">
+                    <span class="text-xs text-gray-500" id="fontSizeValue">18px</span>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-1">Edit Indicator Color</label>
+                    <div class="flex items-center gap-4">
+                        <input type="color" id="editIndicatorColor" class="w-16 h-16 rounded-lg cursor-pointer border-2 border-gray-300" value="#22c55e">
+                        <span class="text-sm text-gray-600">Click to choose color</span>
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-between p-4 bg-gray-100 rounded-lg">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">NSFW Content</label>
+                        <p class="text-xs text-gray-500">Mark this profile as containing mature content</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="nsfwToggle" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="flex gap-2 mt-6">
+                <button id="closeFontModal" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">Cancel</button>
+                <button id="saveFont" class="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Link Edit Modal -->
+    <div id="linkModal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-xl font-bold mb-4" id="linkModalTitle">Edit Link</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Title</label>
+                    <input type="text" id="linkTitle" class="w-full border rounded-lg px-3 py-2" placeholder="Link title">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Description</label>
+                    <input type="text" id="linkDesc" class="w-full border rounded-lg px-3 py-2" placeholder="Link description">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Optional Text (subtitle)</label>
+                    <input type="text" id="linkOptionalText" class="w-full border rounded-lg px-3 py-2" placeholder="Additional text below description">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">URL</label>
+                    <input type="url" id="linkUrl" class="w-full border rounded-lg px-3 py-2" placeholder="https://example.com">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Icon</label>
+                    <button type="button" id="linkIconPicker" class="w-full border rounded-lg px-3 py-2 text-left hover:bg-gray-50 flex items-center justify-between">
+                        <span id="selectedIconDisplay"><i class="fas fa-globe mr-2"></i>Choose an icon</span>
+                        <i class="fas fa-chevron-down text-gray-400"></i>
+                    </button>
+                    <input type="hidden" id="linkIcon" value="fas fa-globe">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Icon Color</label>
+                    <div class="flex items-center gap-4">
+                        <input type="color" id="linkIconColor" class="w-16 h-16 rounded-lg cursor-pointer border-2 border-gray-300" value="#ffffff">
+                        <span class="text-sm text-gray-600">Click to choose color</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Card Text Color</label>
+                    <div class="flex items-center gap-4">
+                        <input type="color" id="linkTextColor" class="w-16 h-16 rounded-lg cursor-pointer border-2 border-gray-300" value="#ffffff">
+                        <span class="text-sm text-gray-600">Click to choose color</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Card Style</label>
+                    <select id="linkCardColor" class="w-full border rounded-lg px-3 py-2">
+                        <optgroup label="Glass Effects">
+                            <option value="glass-effect">Glass (default)</option>
+                            <option value="bg-white-10">Light Glass</option>
+                            <option value="bg-white-20">Medium Glass</option>
+                            <option value="bg-white-30">Heavy Glass</option>
+                        </optgroup>
+                        <optgroup label="Color Tints">
+                            <option value="bg-red-500-20">Red Tint</option>
+                            <option value="bg-pink-500-20">Pink Tint</option>
+                            <option value="bg-yellow-500-20">Yellow Tint</option>
+                            <option value="bg-blue-500-20">Blue Tint</option>
+                            <option value="bg-green-500-20">Green Tint</option>
+                            <option value="bg-purple-500-20">Purple Tint</option>
+                        </optgroup>
+                        <optgroup label="Matte">
+                            <option value="card-matte">Matte Light</option>
+                            <option value="card-matte-dark">Matte Dark</option>
+                        </optgroup>
+                        <optgroup label="Shiny">
+                            <option value="card-shiny">Shiny White</option>
+                            <option value="card-shiny-gold">Shiny Gold</option>
+                            <option value="card-shiny-silver">Shiny Silver</option>
+                        </optgroup>
+                        <optgroup label="Metal">
+                            <option value="card-metal-gold">Gold Metal</option>
+                            <option value="card-metal-silver">Silver Metal</option>
+                            <option value="card-metal-bronze">Bronze Metal</option>
+                            <option value="card-metal-copper">Copper Metal</option>
+                        </optgroup>
+                        <optgroup label="Cartoon">
+                            <option value="card-cartoon">Cartoon Pink</option>
+                            <option value="card-cartoon-blue">Cartoon Blue</option>
+                            <option value="card-cartoon-purple">Cartoon Purple</option>
+                        </optgroup>
+                        <optgroup label="Glow">
+                            <option value="card-glow-blue">Glow Blue</option>
+                            <option value="card-glow-pink">Glow Pink</option>
+                            <option value="card-glow-green">Glow Green</option>
+                            <option value="card-glow-rainbow">Glow Rainbow</option>
+                        </optgroup>
+                        <optgroup label="3D Comic">
+                            <option value="card-bouncy">Pink</option>
+                            <option value="card-bouncy-blue">Blue</option>
+                            <option value="card-bouncy-yellow">Yellow</option>
+                        </optgroup>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="flex gap-2 mt-6">
+                <button id="closeLinkModal" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">Cancel</button>
+                <button id="saveLink" class="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Social Icon Modal -->
+    <div id="socialModal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-xl font-bold mb-4">Add Social Icon</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Platform</label>
+                    <select id="socialPlatform" class="w-full border rounded-lg px-3 py-2">
+                        <option value="fab fa-instagram">Instagram</option>
+                        <option value="fab fa-twitter">Twitter/X</option>
+                        <option value="fab fa-tiktok">TikTok</option>
+                        <option value="fab fa-youtube">YouTube</option>
+                        <option value="fab fa-linkedin">LinkedIn</option>
+                        <option value="fab fa-facebook">Facebook</option>
+                        <option value="fab fa-patreon">Patreon</option>
+                        <option value="fab fa-discord">Discord</option>
+                        <option value="fab fa-twitch">Twitch</option>
+                        <option value="fab fa-spotify">Spotify</option>
+                        <option value="fab fa-reddit">Reddit</option>
+                        <option value="fab fa-snapchat">Snapchat</option>
+                        <option value="fab fa-telegram">Telegram</option>
+                        <option value="fab fa-whatsapp">WhatsApp</option>
+                        <option value="fab fa-viber">Viber</option>
+                        <option value="fab fa-weixin">WeChat</option>
+                        <option value="fab fa-line">Line</option>
+                        <option value="fas fa-star">OnlyFans</option>
+                        <option value="fas fa-heart">FanVue</option>
+                        <option value="fab fa-kickstarter">Kickstarter</option>
+                        <option value="fab fa-github">GitHub</option>
+                        <option value="fab fa-stack-overflow">Stack Overflow</option>
+                        <option value="fab fa-dribbble">Dribbble</option>
+                        <option value="fab fa-behance">Behance</option>
+                        <option value="fab fa-pinterest">Pinterest</option>
+                        <option value="fab fa-medium">Medium</option>
+                        <option value="fab fa-tumblr">Tumblr</option>
+                        <option value="fab fa-vimeo">Vimeo</option>
+                        <option value="fab fa-soundcloud">SoundCloud</option>
+                        <option value="fab fa-bandcamp">Bandcamp</option>
+                        <option value="fab fa-mixcloud">Mixcloud</option>
+                        <option value="fab fa-steam">Steam</option>
+                        <option value="fab fa-xbox">Xbox</option>
+                        <option value="fab fa-playstation">PlayStation</option>
+                        <option value="fas fa-gamepad">Twitch Gaming</option>
+                        <option value="other">Other (custom platform)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">URL</label>
+                    <input type="url" id="socialUrl" class="w-full border rounded-lg px-3 py-2" placeholder="https://instagram.com/username">
+                    <p class="text-xs text-gray-500 mt-1" id="socialUrlHint">Enter the full URL for this platform</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Hover Text (tooltip)</label>
+                    <input type="text" id="socialTooltip" class="w-full border rounded-lg px-3 py-2" placeholder="Instagram">
+                    <p class="text-xs text-gray-500 mt-1" id="tooltipHint">This text will show when hovering over the icon</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Icon Color</label>
+                    <div class="flex items-center gap-4">
+                        <input type="color" id="socialIconColor" class="w-16 h-16 rounded-lg cursor-pointer border-2 border-gray-300" value="#ffffff">
+                        <span class="text-sm text-gray-600">Click to choose color</span>
+                    </div>
+                </div>
+                <div id="customIconUpload" style="display: none;">
+                    <label class="block text-sm font-medium mb-1">Upload Custom Icon</label>
+                    <label class="upload-label bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                        <i class="fas fa-upload"></i>
+                        <span>Upload Icon</span>
+                        <input type="file" id="socialIconUpload" accept="image/*">
+                    </label>
+                </div>
+                <div id="iconShapeSelection" style="display: none;">
+                    <label class="block text-sm font-medium mb-1">Icon Shape</label>
+                    <button type="button" id="shapePickerBtn" class="w-full border rounded-lg px-3 py-2 text-left hover:bg-gray-50 flex items-center justify-between">
+                        <span id="selectedShapeDisplay">Choose a shape</span>
+                        <i class="fas fa-chevron-down text-gray-400"></i>
+                    </button>
+                    <input type="hidden" id="selectedShape" value="circle">
+                </div>
+            </div>
+            
+            <div class="flex gap-2 mt-6">
+                <button id="closeSocialModal" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">Cancel</button>
+                <button id="saveSocial" class="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Text Section Modal -->
+    <div id="textModal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-xl font-bold mb-4" id="textModalTitle">Add Text Section</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Title (optional)</label>
+                    <input type="text" id="textTitle" class="w-full border rounded-lg px-3 py-2" placeholder="Section title">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Content</label>
+                    <textarea id="textContent" class="w-full border rounded-lg px-3 py-2 h-32" placeholder="Enter your text content here..."></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Background Color</label>
+                    <div class="flex items-center gap-4">
+                        <input type="color" id="textBgColor" class="w-16 h-16 rounded-lg cursor-pointer border-2 border-gray-300" value="rgba(255,255,255,0.1)">
+                        <span class="text-sm text-gray-600">Click to choose color</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex gap-2 mt-6">
+                <button id="closeTextModal" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">Cancel</button>
+                <button id="saveText" class="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Icon Picker Modal -->
+    <div id="iconPickerModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <h2 class="text-xl font-bold mb-4">Choose an Icon</h2>
+            
+            <div class="mb-4">
+                <input type="text" id="iconSearch" class="w-full border rounded-lg px-3 py-2" placeholder="Search icons...">
+            </div>
+            
+            <div class="mb-4">
+                <select id="iconCategory" class="w-full border rounded-lg px-3 py-2">
+                    <option value="all">All Icons</option>
+                    <option value="social">Social Media</option>
+                    <option value="brand">Brands</option>
+                    <option value="web">Web & UI</option>
+                    <option value="communication">Communication</option>
+                    <option value="media">Media</option>
+                    <option value="business">Business</option>
+                    <option value="misc">Miscellaneous</option>
+                </select>
+            </div>
+            
+            <div id="iconGrid" class="grid grid-cols-6 gap-2 max-h-96 overflow-y-auto p-2">
+                <!-- Icons will be dynamically generated -->
+            </div>
+            
+            <div class="mt-4 pt-4 border-t">
+                <label class="upload-label bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 w-full justify-center">
+                    <i class="fas fa-upload"></i>
+                    <span>Upload Custom Icon</span>
+                    <input type="file" id="customIconUpload" accept="image/*">
+                </label>
+            </div>
+            
+            <div class="flex gap-2 mt-6">
+                <button id="closeIconPicker" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shape Picker Modal -->
+    <div id="shapePickerModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <h2 class="text-xl font-bold mb-4">Choose Icon Shape</h2>
+            
+            <div id="shapeGrid" class="grid grid-cols-4 gap-4 p-4">
+                <div class="shape-option cursor-pointer p-4 border-2 border-gray-300 rounded-lg hover:border-blue-500 transition" data-shape="circle">
+                    <div class="w-16 h-16 mx-auto bg-gray-300 rounded-full"></div>
+                </div>
+                <div class="shape-option cursor-pointer p-4 border-2 border-gray-300 rounded-lg hover:border-blue-500 transition" data-shape="rounded-square">
+                    <div class="w-16 h-16 mx-auto bg-gray-300 rounded-xl"></div>
+                </div>
+                <div class="shape-option cursor-pointer p-4 border-2 border-gray-300 rounded-lg hover:border-blue-500 transition" data-shape="square">
+                    <div class="w-16 h-16 mx-auto bg-gray-300"></div>
+                </div>
+                <div class="shape-option cursor-pointer p-4 border-2 border-gray-300 rounded-lg hover:border-blue-500 transition" data-shape="diamond">
+                    <div class="w-16 h-16 mx-auto bg-gray-300 rotate-45"></div>
+                </div>
+                <div class="shape-option cursor-pointer p-4 border-2 border-gray-300 rounded-lg hover:border-blue-500 transition" data-shape="star">
+                    <div class="w-16 h-16 mx-auto bg-gray-300" style="clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);"></div>
+                </div>
+                <div class="shape-option cursor-pointer p-4 border-2 border-gray-300 rounded-lg hover:border-blue-500 transition" data-shape="hexagon">
+                    <div class="w-16 h-16 mx-auto bg-gray-300" style="clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);"></div>
+                </div>
+                <div class="shape-option cursor-pointer p-4 border-2 border-gray-300 rounded-lg hover:border-blue-500 transition" data-shape="octagon">
+                    <div class="w-16 h-16 mx-auto bg-gray-300" style="clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);"></div>
+                </div>
+                <div class="shape-option cursor-pointer p-4 border-2 border-gray-300 rounded-lg hover:border-blue-500 transition" data-shape="heart">
+                    <div class="w-16 h-16 mx-auto bg-gray-300" style="clip-path: polygon(50% 15%, 65% 0%, 100% 15%, 100% 50%, 50% 100%, 0% 50%, 0% 15%, 35% 0%);"></div>
+                </div>
+                <div class="shape-option cursor-pointer p-4 border-2 border-gray-300 rounded-lg hover:border-blue-500 transition" data-shape="triangle">
+                    <div class="w-16 h-16 mx-auto bg-gray-300" style="clip-path: polygon(50% 0%, 100% 100%, 0% 100%);"></div>
+                </div>
+                <div class="shape-option cursor-pointer p-4 border-2 border-gray-300 rounded-lg hover:border-blue-500 transition" data-shape="pentagon">
+                    <div class="w-16 h-16 mx-auto bg-gray-300" style="clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);"></div>
+                </div>
+                <div class="shape-option cursor-pointer p-4 border-2 border-gray-300 rounded-lg hover:border-blue-500 transition" data-shape="rhomboid">
+                    <div class="w-16 h-16 mx-auto bg-gray-300" style="clip-path: polygon(25% 0%, 100% 0%, 75% 100%, 0% 100%);"></div>
+                </div>
+                <div class="shape-option cursor-pointer p-4 border-2 border-gray-300 rounded-lg hover:border-blue-500 transition" data-shape="shield">
+                    <div class="w-16 h-16 mx-auto bg-gray-300" style="clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);"></div>
+                </div>
+            </div>
+            
+            <div class="flex gap-2 mt-6">
+                <button id="closeShapePicker" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <h2 class="text-xl font-bold mb-4">Login to Edit</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Username</label>
+                    <input type="text" id="loginUsername" class="w-full border rounded-lg px-3 py-2" placeholder="Enter username">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Password</label>
+                    <input type="password" id="loginPassword" class="w-full border rounded-lg px-3 py-2" placeholder="Enter password">
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button id="googleLoginBtn" class="w-full bg-white text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100 transition flex items-center justify-center gap-2 border">
+                    <img src="https://www.google.com/favicon.ico" class="w-5 h-5" alt="Google">
+                    <span>Sign in with Google</span>
+                </button>
+            </div>
+            
+            <div class="flex gap-2 mt-6">
+                <button id="closeLoginModal" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">Cancel</button>
+                <button id="loginBtn" class="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Login</button>
+            </div>
+            
+            <p class="text-center text-sm text-gray-500 mt-4">
+                <a href="#" id="showForgotPasswordBtn" class="text-blue-500 hover:underline">Forgot password?</a>
+            </p>
+            
+            <p class="text-center text-sm text-gray-500 mt-2">
+                Don't have an account? <a href="#" id="showRegisterBtn" class="text-blue-500 hover:underline">Register</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <h2 class="text-xl font-bold mb-4">Register</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Username</label>
+                    <input type="text" id="registerUsername" class="w-full border rounded-lg px-3 py-2" placeholder="Choose a username">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Email (optional)</label>
+                    <input type="email" id="registerEmail" class="w-full border rounded-lg px-3 py-2" placeholder="Enter your email">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Password</label>
+                    <input type="password" id="registerPassword" class="w-full border rounded-lg px-3 py-2" placeholder="Choose a password">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Confirm Password</label>
+                    <input type="password" id="registerConfirmPassword" class="w-full border rounded-lg px-3 py-2" placeholder="Confirm password">
+                </div>
+            </div>
+            
+            <div class="flex gap-2 mt-6">
+                <button id="closeRegisterModal" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">Cancel</button>
+                <button id="registerBtn" class="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Register</button>
+            </div>
+            
+            <p class="text-center text-sm text-gray-500 mt-4">
+                Already have an account? <a href="#" id="showLoginBtn" class="text-blue-500 hover:underline">Login</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgotPasswordModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <h2 class="text-xl font-bold mb-4">Reset Password</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Email</label>
+                    <input type="email" id="forgotEmail" class="w-full border rounded-lg px-3 py-2" placeholder="Enter your email">
+                </div>
+            </div>
+            
+            <div class="flex gap-2 mt-6">
+                <button id="closeForgotPasswordModal" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">Cancel</button>
+                <button id="sendOTPBtn" class="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Send OTP</button>
+            </div>
+            
+            <p class="text-center text-sm text-gray-500 mt-4">
+                <a href="#" id="showLoginFromForgotBtn" class="text-blue-500 hover:underline">Back to Login</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div id="resetPasswordModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <h2 class="text-xl font-bold mb-4">Enter OTP & New Password</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">OTP Code</label>
+                    <input type="text" id="resetOTP" class="w-full border rounded-lg px-3 py-2" placeholder="Enter 6-digit code" maxlength="6">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">New Password</label>
+                    <input type="password" id="resetNewPassword" class="w-full border rounded-lg px-3 py-2" placeholder="Enter new password">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Confirm Password</label>
+                    <input type="password" id="resetConfirmPassword" class="w-full border rounded-lg px-3 py-2" placeholder="Confirm new password">
+                </div>
+            </div>
+            
+            <div class="flex gap-2 mt-6">
+                <button id="closeResetPasswordModal" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">Cancel</button>
+                <button id="resetPasswordBtn" class="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Reset Password</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Item Modal -->
+    <div id="sidebarItemModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <h2 class="text-xl font-bold mb-4" id="sidebarModalTitle">Add Sidebar Item</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Item Type</label>
+                    <select id="sidebarItemType" class="w-full border rounded-lg px-3 py-2">
+                        <option value="text">Text</option>
+                        <option value="image">Image</option>
+                        <option value="gif">GIF</option>
+                        <option value="shape">Shape</option>
+                    </select>
+                </div>
+                
+                <div id="textInputSection">
+                    <label class="block text-sm font-medium mb-1">Text Content</label>
+                    <textarea id="sidebarTextContent" class="w-full border rounded-lg px-3 py-2 h-32" placeholder="Enter your text..."></textarea>
+                </div>
+                
+                <div id="imageInputSection" style="display: none;">
+                    <label class="block text-sm font-medium mb-1">Upload Image/GIF</label>
+                    <label class="upload-label bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 w-full justify-center">
+                        <i class="fas fa-upload"></i>
+                        <span>Choose File</span>
+                        <input type="file" id="sidebarImageUpload" accept="image/*">
+                    </label>
+                </div>
+                
+                <div id="shapeInputSection" style="display: none;">
+                    <label class="block text-sm font-medium mb-1">Shape Type</label>
+                    <select id="sidebarShapeType" class="w-full border rounded-lg px-3 py-2">
+                        <option value="circle">Circle</option>
+                        <option value="rounded-square">Rounded Square</option>
+                        <option value="square">Square</option>
+                        <option value="diamond">Diamond</option>
+                        <option value="star">Star</option>
+                        <option value="hexagon">Hexagon</option>
+                        <option value="heart">Heart</option>
+                        <option value="triangle">Triangle</option>
+                    </select>
+                    <label class="block text-sm font-medium mb-1 mt-2">Shape Color</label>
+                    <div class="flex items-center gap-4">
+                        <input type="color" id="sidebarShapeColor" class="w-16 h-16 rounded-lg cursor-pointer border-2 border-gray-300" value="#ffffff">
+                        <span class="text-sm text-gray-600">Click to choose color</span>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-1">Background Color</label>
+                    <div class="flex items-center gap-4 mb-2">
+                        <input type="color" id="sidebarBgColor" class="w-16 h-16 rounded-lg cursor-pointer border-2 border-gray-300" value="#ffffff">
+                        <span class="text-sm text-gray-600">Click to choose color</span>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Transparency</label>
+                        <input type="range" id="sidebarBgTransparency" class="w-full" min="0" max="100" value="10">
+                        <span class="text-xs text-gray-500" id="transparencyValue">10%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex gap-2 mt-6">
+                <button id="closeSidebarModal" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">Cancel</button>
+                <button id="saveSidebarItem" class="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Gallery Modal -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-xl font-bold mb-4">Add Image to Gallery</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Upload Image</label>
+                    <label class="upload-label bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                        <i class="fas fa-upload"></i>
+                        <span>Choose Image</span>
+                        <input type="file" id="galleryUpload" accept="image/*">
+                    </label>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Link (optional)</label>
+                    <input type="url" id="galleryLink" class="w-full border rounded-lg px-3 py-2" placeholder="https://example.com">
+                </div>
+            </div>
+            
+            <div class="flex gap-2 mt-6">
+                <button id="closeImageModal" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">Cancel</button>
+                <button id="saveImage" class="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex flex-col lg:flex-row gap-4 lg:gap-8 px-4 py-8 max-w-7xl mx-auto" id="mainContent">
+        <!-- Left Sidebar -->
+        <div class="w-full lg:w-48 flex-shrink-0 hidden lg:block order-3 lg:order-1" id="leftSidebar">
+            <div class="glass-effect rounded-xl p-4 min-h-48 lg:min-h-96 relative">
+                <div id="leftSidebarContent" class="space-y-4">
+                    <!-- Sidebar content will be dynamically generated -->
+                </div>
+                <div id="leftSidebarEmpty" class="text-center text-white/60 text-sm py-8">
+                    <p>No items yet</p>
+                    <p class="text-xs mt-1">Click + to add</p>
+                </div>
+                <button id="addLeftSidebarItem" class="edit-controls absolute top-2 right-2 bg-blue-500 text-white px-2 py-1 rounded text-sm hover:bg-blue-600">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="flex-1 max-w-md mx-auto order-1 lg:order-2" id="mainContentInner">
+        <!-- Profile Section -->
+        <div class="text-center mb-8 animate-fade-in-up">
+            <div class="relative inline-block mb-4">
+                <img src="https://picsum.photos/seed/profile123/150/150.jpg" 
+                     alt="Profile" 
+                     class="w-32 h-32 rounded-full profile-img object-cover editable" id="profileImg">
+                <div class="absolute bottom-0 right-0 w-6 h-6 rounded-full border-2 border-white" id="profileIndicator" style="background-color: #22c55e;"></div>
+                <label class="edit-controls absolute inset-0 flex items-center justify-center bg-black/50 rounded-full cursor-pointer">
+                    <i class="fas fa-camera text-white text-xl"></i>
+                    <input type="file" id="profileUpload" accept="image/*" class="hidden">
+                </label>
+            </div>
+            <h1 class="text-3xl font-bold text-white mb-2 editable" id="profileName" contenteditable="false">John Doe</h1>
+            <p class="text-white/80 text-sm mb-4 editable" id="profileBio" contenteditable="false">Content Creator | Digital Artist | Tech Enthusiast</p>
+            
+            <!-- Social Icons -->
+            <div class="flex justify-center space-x-4 mb-6 flex-wrap" id="socialIcons">
+                <div class="social-icon-wrapper relative">
+                    <a href="#" class="social-icon text-white/80 hover:text-white" data-platform="instagram">
+                        <i class="fab fa-instagram text-xl"></i>
+                    </a>
+                    <span class="social-tooltip">Instagram</span>
+                    <button class="remove-btn edit-controls" onclick="removeSocialIcon(this)">×</button>
+                </div>
+                <div class="social-icon-wrapper relative">
+                    <a href="#" class="social-icon text-white/80 hover:text-white" data-platform="twitter">
+                        <i class="fab fa-twitter text-xl"></i>
+                    </a>
+                    <span class="social-tooltip">Twitter/X</span>
+                    <button class="remove-btn edit-controls" onclick="removeSocialIcon(this)">×</button>
+                </div>
+                <div class="social-icon-wrapper relative">
+                    <a href="#" class="social-icon text-white/80 hover:text-white" data-platform="tiktok">
+                        <i class="fab fa-tiktok text-xl"></i>
+                    </a>
+                    <span class="social-tooltip">TikTok</span>
+                    <button class="remove-btn edit-controls" onclick="removeSocialIcon(this)">×</button>
+                </div>
+                <div class="social-icon-wrapper relative">
+                    <a href="#" class="social-icon text-white/80 hover:text-white" data-platform="youtube">
+                        <i class="fab fa-youtube text-xl"></i>
+                    </a>
+                    <span class="social-tooltip">YouTube</span>
+                    <button class="remove-btn edit-controls" onclick="removeSocialIcon(this)">×</button>
+                </div>
+                <div class="social-icon-wrapper relative">
+                    <a href="#" class="social-icon text-white/80 hover:text-white" data-platform="linkedin">
+                        <i class="fab fa-linkedin text-xl"></i>
+                    </a>
+                    <span class="social-tooltip">LinkedIn</span>
+                    <button class="remove-btn edit-controls" onclick="removeSocialIcon(this)">×</button>
+                </div>
+            </div>
+            
+            <!-- Add Social Icon Button -->
+            <button id="addSocialBtn" class="edit-controls bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition mb-4">
+                <i class="fas fa-plus mr-2"></i>Add Social Icon
+            </button>
+        </div>
+
+        <!-- Links Section -->
+        <div class="space-y-4" id="linksContainer">
+            <!-- Links will be dynamically generated -->
+        </div>
+        
+        <!-- Add Link Button -->
+        <button id="addLinkBtn" class="edit-controls w-full glass-effect text-white px-4 py-3 rounded-xl hover:bg-white/20 transition mt-4">
+            <i class="fas fa-plus mr-2"></i>Add Link
+        </button>
+
+        <!-- Text Sections -->
+        <div class="space-y-4 mt-6" id="textSectionsContainer">
+            <!-- Text sections will be dynamically generated -->
+        </div>
+
+        <!-- Add Text Section Button -->
+        <button id="addTextBtn" class="edit-controls w-full glass-effect text-white px-4 py-3 rounded-xl hover:bg-white/20 transition mt-4">
+            <i class="fas fa-font mr-2"></i>Add Text Section
+        </button>
+
+        <!-- Image Gallery Section -->
+        <div class="mt-8">
+            <h3 class="text-white font-semibold mb-4">Image Gallery</h3>
+            <div id="galleryContainer" class="grid grid-cols-3 gap-2 mb-4">
+                <!-- Gallery images will be dynamically generated -->
+            </div>
+            <button id="addImageBtn" class="edit-controls w-full glass-effect text-white px-4 py-3 rounded-xl hover:bg-white/20 transition">
+                <i class="fas fa-plus mr-2"></i>Add Image
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-8 text-white/60 text-sm animate-fade-in-up animate-delay-5">
+            <p class="editable" id="footerText" contenteditable="false">© 2024 John Doe. All rights reserved.</p>
+            <p class="mt-2">Made with ❤️</p>
+        </div>
+        </div>
+        
+        <!-- Right Sidebar -->
+        <div class="w-full lg:w-48 flex-shrink-0 hidden lg:block order-2 lg:order-3" id="rightSidebar">
+            <div class="glass-effect rounded-xl p-4 min-h-48 lg:min-h-96 relative">
+                <div id="rightSidebarContent" class="space-y-4">
+                    <!-- Sidebar content will be dynamically generated -->
+                </div>
+                <div id="rightSidebarEmpty" class="text-center text-white/60 text-sm py-8">
+                    <p>No items yet</p>
+                    <p class="text-xs mt-1">Click + to add</p>
+                </div>
+                <button id="addRightSidebarItem" class="edit-controls absolute top-2 right-2 bg-blue-500 text-white px-2 py-1 rounded text-sm hover:bg-blue-600">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        // State management
+        let isEditMode = false;
+        let links = [
+            { id: 1, title: 'My Website', desc: 'Portfolio and blog', optionalText: '', url: 'https://johndoe.com', icon: 'fas fa-globe', color: '#ffffff', textColor: '#ffffff', cardColor: 'glass-effect' },
+            { id: 2, title: 'YouTube Channel', desc: 'Tech tutorials & reviews', optionalText: '', url: 'https://youtube.com', icon: 'fab fa-youtube', color: '#ff6b6b', textColor: '#ffffff', cardColor: 'glass-effect' },
+            { id: 3, title: 'Instagram', desc: 'Daily life & creativity', optionalText: '', url: 'https://instagram.com', icon: 'fab fa-instagram', color: '#ff9ff3', textColor: '#ffffff', cardColor: 'glass-effect' },
+            { id: 4, title: 'Merch Store', desc: 'Exclusive products', optionalText: '', url: 'https://store.johndoe.com', icon: 'fas fa-shopping-bag', color: '#feca57', textColor: '#ffffff', cardColor: 'glass-effect' },
+            { id: 5, title: 'Newsletter', desc: 'Weekly updates & tips', optionalText: '', url: 'https://newsletter.johndoe.com', icon: 'fas fa-envelope', color: '#48dbfb', textColor: '#ffffff', cardColor: 'glass-effect' },
+            { id: 6, title: 'Support Me', desc: 'Become a patron', optionalText: '', url: 'https://patreon.com', icon: 'fab fa-patreon', color: '#ff9f43', textColor: '#ffffff', cardColor: 'glass-effect' }
+        ];
+        let gallery = [];
+        let textSections = [];
+        let currentLinkId = null;
+        let currentTextId = null;
+        let customBackground = null;
+        let leftSidebarItems = [];
+        let rightSidebarItems = [];
+        let currentSidebar = null;
+        let currentSidebarItemIndex = null;
+        let isAuthenticated = false;
+        let currentUser = null;
+        let authToken = null;
+        let profileOwner = null; // Username of the profile being viewed
+        let isNSFW = false; // NSFW status of the profile
+        let ageConfirmed = false; // User has confirmed age
+        const API_BASE_URL = 'http://localhost:3001';
+        let bgSettings = {
+            size: 'cover',
+            repeat: 'no-repeat',
+            position: 'center center',
+            attachment: 'scroll'
+        };
+        let fontSettings = {
+            fontFamily: 'system-ui, -apple-system, sans-serif',
+            color: '#ffffff',
+            size: '18px',
+            weight: '400',
+            editIndicatorColor: '#22c55e'
+        };
+
+        // URL validation patterns for platforms
+        const urlPatterns = {
+            'instagram': /^https?:\/\/(www\.)?instagram\.com\/[\w.-]+\/?$/,
+            'twitter': /^https?:\/\/(www\.)?(twitter|x)\.com\/[\w.-]+\/?$/,
+            'tiktok': /^https?:\/\/(www\.)?tiktok\.com\/@?[\w.-]+\/?$/,
+            'youtube': /^https?:\/\/(www\.)?(youtube\.com\/(channel|c|user)\/[\w.-]+|youtu\.be\/[\w.-]+)\/?$/,
+            'linkedin': /^https?:\/\/(www\.)?linkedin\.com\/(in|company)\/[\w.-]+\/?$/,
+            'facebook': /^https?:\/\/(www\.)?facebook\.com\/[\w.-]+\/?$/,
+            'patreon': /^https?:\/\/(www\.)?patreon\.com\/[\w.-]+\/?$/,
+            'discord': /^https?:\/\/(www\.)?discord\.gg\/[\w.-]+\/?$|^https?:\/\/(www\.)?discord\.com\/invite\/[\w.-]+\/?$/,
+            'twitch': /^https?:\/\/(www\.)?twitch\.tv\/[\w.-]+\/?$/,
+            'spotify': /^https?:\/\/(open\.)?spotify\.com\/(user|artist)\/[\w.-]+\/?$/,
+            'reddit': /^https?:\/\/(www\.)?reddit\.com\/(user|r)\/[\w.-]+\/?$/,
+            'snapchat': /^https?:\/\/(www\.)?snapchat\.com\/add\/[\w.-]+\/?$/,
+            'telegram': /^https?:\/\/(t\.me|telegram\.me)\/[\w.-]+\/?$/,
+            'whatsapp': /^https?:\/\/(wa\.me|chat\.whatsapp\.com)\/[\d]+\/?$/,
+            'viber': /^https?:\/\/(www\.)?viber\.com\/[\w.-]+\/?$/,
+            'weixin': /^https?:\/\/(www\.)?weixin\.qq\.com\/[\w.-]+\/?$/,
+            'line': /^https?:\/\/(www\.)?line\.me\/[\w.-]+\/?$/,
+            'onlyfans': /^https?:\/\/(www\.)?onlyfans\.com\/[\w.-]+\/?$/,
+            'fanvue': /^https?:\/\/(www\.)?fanvue\.com\/[\w.-]+\/?$/,
+            'kickstarter': /^https?:\/\/(www\.)?kickstarter\.com\/projects\/[\w.-]+\/?$/,
+            'github': /^https?:\/\/(www\.)?github\.com\/[\w.-]+\/?$/,
+            'dribbble': /^https?:\/\/(www\.)?dribbble\.com\/[\w.-]+\/?$/,
+            'behance': /^https?:\/\/(www\.)?behance\.net\/[\w.-]+\/?$/,
+            'pinterest': /^https?:\/\/(www\.)?pinterest\.(com|co\.uk|fr|de)\/[\w.-]+\/?$/,
+            'medium': /^https?:\/\/(www\.)?medium\.com\/@?[\w.-]+\/?$/,
+            'tumblr': /^https?:\/\/[\w.-]+\.tumblr\.com\/?$/,
+            'vimeo': /^https?:\/\/(www\.)?vimeo\.com\/[\w.-]+\/?$/,
+            'soundcloud': /^https?:\/\/(www\.)?soundcloud\.com\/[\w.-]+\/?$/,
+            'bandcamp': /^https?:\/\/[\w.-]+\.bandcamp\.com\/?$/,
+            'mixcloud': /^https?:\/\/(www\.)?mixcloud\.com\/[\w.-]+\/?$/,
+            'steam': /^https?:\/\/(www\.)?steamcommunity\.com\/(id|profiles)\/[\w.-]+\/?$/,
+            'xbox': /^https?:\/\/(www\.)?xbox\.com\/[\w.-]+\/?$/,
+            'playstation': /^https?:\/\/(www\.)?playstation\.com\/[\w.-]+\/?$/
+        };
+
+        // Platform name mapping
+        const platformNames = {
+            'fab fa-instagram': 'Instagram',
+            'fab fa-twitter': 'Twitter/X',
+            'fab fa-tiktok': 'TikTok',
+            'fab fa-youtube': 'YouTube',
+            'fab fa-linkedin': 'LinkedIn',
+            'fab fa-facebook': 'Facebook',
+            'fab fa-patreon': 'Patreon',
+            'fab fa-discord': 'Discord',
+            'fab fa-twitch': 'Twitch',
+            'fab fa-spotify': 'Spotify',
+            'fab fa-reddit': 'Reddit',
+            'fab fa-snapchat': 'Snapchat',
+            'fab fa-telegram': 'Telegram',
+            'fab fa-whatsapp': 'WhatsApp',
+            'fab fa-viber': 'Viber',
+            'fab fa-weixin': 'WeChat',
+            'fab fa-line': 'Line',
+            'fas fa-star': 'OnlyFans',
+            'fas fa-heart': 'FanVue',
+            'fab fa-kickstarter': 'Kickstarter',
+            'fab fa-github': 'GitHub',
+            'fab fa-stack-overflow': 'Stack Overflow',
+            'fab fa-dribbble': 'Dribbble',
+            'fab fa-behance': 'Behance',
+            'fab fa-pinterest': 'Pinterest',
+            'fab fa-medium': 'Medium',
+            'fab fa-tumblr': 'Tumblr',
+            'fab fa-vimeo': 'Vimeo',
+            'fab fa-soundcloud': 'SoundCloud',
+            'fab fa-bandcamp': 'Bandcamp',
+            'fab fa-mixcloud': 'Mixcloud',
+            'fab fa-steam': 'Steam',
+            'fab fa-xbox': 'Xbox',
+            'fab fa-playstation': 'PlayStation',
+            'fas fa-gamepad': 'Twitch Gaming'
+        };
+
+        // Icon categories and icons
+        const iconCategories = {
+            social: [
+                'fab fa-instagram', 'fab fa-twitter', 'fab fa-facebook', 'fab fa-linkedin',
+                'fab fa-youtube', 'fab fa-tiktok', 'fab fa-pinterest', 'fab fa-snapchat',
+                'fab fa-telegram', 'fab fa-whatsapp', 'fab fa-discord', 'fab fa-twitch',
+                'fab fa-spotify', 'fab fa-reddit', 'fab fa-vimeo', 'fab fa-soundcloud',
+                'fab fa-medium', 'fab fa-tumblr', 'fab fa-dribbble', 'fab fa-behance',
+                'fab fa-github', 'fab fa-stack-overflow', 'fab fa-gitlab', 'fab fa-bitbucket'
+            ],
+            brand: [
+                'fab fa-apple', 'fab fa-android', 'fab fa-windows', 'fab fa-linux',
+                'fab fa-chrome', 'fab fa-firefox', 'fab fa-safari', 'fab fa-edge',
+                'fab fa-amazon', 'fab fa-google', 'fab fa-microsoft', 'fab fa-paypal',
+                'fab fa-stripe', 'fab fa-cc-visa', 'fab fa-cc-mastercard', 'fab fa-cc-paypal',
+                'fab fa-cc-amex', 'fab fa-cc-apple-pay', 'fab fa-cc-paypal', 'fab fa-cc-stripe'
+            ],
+            web: [
+                'fas fa-globe', 'fas fa-link', 'fas fa-external-link-alt', 'fas fa-home',
+                'fas fa-search', 'fas fa-filter', 'fas fa-sort', 'fas fa-sort-up',
+                'fas fa-sort-down', 'fas fa-cog', 'fas fa-cogs', 'fas fa-sliders-h',
+                'fas fa-tools', 'fas fa-wrench', 'fas fa-screwdriver', 'fas fa-hammer',
+                'fas fa-code', 'fas fa-terminal', 'fas fa-file-code', 'fas fa-database',
+                'fas fa-server', 'fas fa-cloud', 'fas fa-wifi', 'fas fa-bluetooth'
+            ],
+            communication: [
+                'fas fa-envelope', 'fas fa-envelope-open', 'fas fa-paper-plane', 'fas fa-comment',
+                'fas fa-comments', 'fas fa-comment-dots', 'fas fa-phone', 'fas fa-phone-alt',
+                'fas fa-mobile-alt', 'fas fa-tablet-alt', 'fas fa-laptop', 'fas fa-desktop',
+                'fas fa-bell', 'fas fa-bell-slash', 'fas fa-bullhorn', 'fas fa-broadcast-tower',
+                'fas fa-satellite', 'fas fa-satellite-dish', 'fas fa-wifi', 'fas fa-signal'
+            ],
+            media: [
+                'fas fa-image', 'fas fa-images', 'fas fa-camera', 'fas fa-video',
+                'fas fa-film', 'fas fa-music', 'fas fa-headphones', 'fas fa-microphone',
+                'fas fa-volume-up', 'fas fa-volume-down', 'fas fa-volume-mute', 'fas fa-play',
+                'fas fa-pause', 'fas fa-stop', 'fas fa-forward', 'fas fa-backward',
+                'fas fa-step-forward', 'fas fa-step-backward', 'fas fa-fast-forward', 'fas fa-rewind'
+            ],
+            business: [
+                'fas fa-briefcase', 'fas fa-briefcase-medical', 'fas fa-building', 'fas fa-building-medical',
+                'fas fa-chart-line', 'fas fa-chart-bar', 'fas fa-chart-pie', 'fas fa-chart-area',
+                'fas fa-dollar-sign', 'fas fa-euro-sign', 'fas fa-pound-sign', 'fas fa-yen-sign',
+                'fas fa-credit-card', 'fas fa-wallet', 'fas fa-piggy-bank', 'fas fa-coins',
+                'fas fa-handshake', 'fas fa-users', 'fas fa-user-tie', 'fas fa-user-cog'
+            ],
+            misc: [
+                'fas fa-star', 'fas fa-heart', 'fas fa-heart-broken', 'fas fa-thumbs-up',
+                'fas fa-thumbs-down', 'fas fa-bookmark', 'fas fa-flag', 'fas fa-book',
+                'fas fa-book-open', 'fas fa-newspaper', 'fas fa-file', 'fas fa-file-alt',
+                'fas fa-folder', 'fas fa-folder-open', 'fas fa-archive', 'fas fa-download',
+                'fas fa-upload', 'fas fa-share', 'fas fa-share-alt', 'fas fa-copy'
+            ]
+        };
+
+        let currentIconPickerTarget = null;
+        let customIconDataUrl = null;
+
+        // Render icon grid
+        function renderIconGrid(category = 'all', search = '') {
+            const grid = document.getElementById('iconGrid');
+            grid.innerHTML = '';
+            
+            let icons = [];
+            if (category === 'all') {
+                Object.values(iconCategories).forEach(catIcons => {
+                    icons = icons.concat(catIcons);
+                });
+            } else {
+                icons = iconCategories[category] || [];
+            }
+            
+            // Filter by search
+            if (search) {
+                const searchLower = search.toLowerCase();
+                icons = icons.filter(icon => icon.includes(searchLower));
+            }
+            
+            // Remove duplicates
+            icons = [...new Set(icons)];
+            
+            icons.forEach(icon => {
+                const iconEl = document.createElement('div');
+                iconEl.className = 'flex items-center justify-center p-3 border rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition';
+                iconEl.innerHTML = `<i class="${icon} text-2xl text-gray-700"></i>`;
+                iconEl.addEventListener('click', () => selectIcon(icon));
+                grid.appendChild(iconEl);
+            });
+            
+            if (icons.length === 0) {
+                grid.innerHTML = '<p class="col-span-6 text-center text-gray-500 py-4">No icons found</p>';
+            }
+        }
+
+        // Select icon
+        function selectIcon(icon) {
+            if (currentIconPickerTarget === 'link') {
+                document.getElementById('linkIcon').value = icon;
+                document.getElementById('selectedIconDisplay').innerHTML = `<i class="${icon} mr-2"></i>${icon}`;
+            }
+            customIconDataUrl = null;
+            document.getElementById('iconPickerModal').classList.remove('active');
+        }
+
+        // Open icon picker
+        document.getElementById('linkIconPicker').addEventListener('click', () => {
+            currentIconPickerTarget = 'link';
+            customIconDataUrl = null;
+            document.getElementById('iconPickerModal').classList.add('active');
+            renderIconGrid();
+        });
+
+        // Custom icon upload
+        document.getElementById('customIconUpload').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    customIconDataUrl = e.target.result;
+                    if (currentIconPickerTarget === 'link') {
+                        document.getElementById('linkIcon').value = 'custom:' + customIconDataUrl;
+                        document.getElementById('selectedIconDisplay').innerHTML = `<img src="${customIconDataUrl}" class="w-5 h-5 mr-2 inline">Custom Icon`;
+                    }
+                    document.getElementById('iconPickerModal').classList.remove('active');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Close icon picker
+        document.getElementById('closeIconPicker').addEventListener('click', () => {
+            document.getElementById('iconPickerModal').classList.remove('active');
+            customIconDataUrl = null;
+        });
+
+        // Icon category change
+        document.getElementById('iconCategory').addEventListener('change', (e) => {
+            const search = document.getElementById('iconSearch').value;
+            renderIconGrid(e.target.value, search);
+        });
+
+        // Icon search
+        document.getElementById('iconSearch').addEventListener('input', (e) => {
+            const category = document.getElementById('iconCategory').value;
+            renderIconGrid(category, e.target.value);
+        });
+
+        // Validate URL against platform pattern
+        function validateUrl(url, platformIcon) {
+            const platformKey = platformIcon.toLowerCase().replace('fab fa-', '').replace('fas fa-', '');
+            const pattern = urlPatterns[platformKey];
+            
+            if (!pattern) return { valid: true, message: '' };
+            
+            if (pattern.test(url)) {
+                return { valid: true, message: '' };
+            }
+            
+            const platformName = platformNames[platformIcon] || platformKey;
+            return { 
+                valid: false, 
+                message: `The URL doesn't match the expected format for ${platformName}. Please check and try again.` 
+            };
+        }
+
+        // Load from localStorage
+        function loadFromStorage() {
+            const savedLinks = localStorage.getItem('bioLinks');
+            const savedGallery = localStorage.getItem('bioGallery');
+            const savedTextSections = localStorage.getItem('bioTextSections');
+            const savedBg = localStorage.getItem('bioBackground');
+            const savedBgSettings = localStorage.getItem('bioBgSettings');
+            const savedFontSettings = localStorage.getItem('bioFontSettings');
+            const savedProfile = localStorage.getItem('bioProfile');
+            const savedLeftSidebar = localStorage.getItem('bioLeftSidebar');
+            const savedRightSidebar = localStorage.getItem('bioRightSidebar');
+            
+            if (savedLinks) links = JSON.parse(savedLinks);
+            if (savedGallery) gallery = JSON.parse(savedGallery);
+            if (savedTextSections) textSections = JSON.parse(savedTextSections);
+            if (savedBg) customBackground = savedBg;
+            if (savedBgSettings) bgSettings = JSON.parse(savedBgSettings);
+            if (savedFontSettings) fontSettings = JSON.parse(savedFontSettings);
+            if (savedProfile) {
+                const profile = JSON.parse(savedProfile);
+                document.getElementById('profileName').textContent = profile.name;
+                document.getElementById('profileBio').textContent = profile.bio;
+                document.getElementById('profileImg').src = profile.img;
+                document.getElementById('footerText').textContent = profile.footer;
+            }
+            if (savedLeftSidebar) leftSidebarItems = JSON.parse(savedLeftSidebar);
+            if (savedRightSidebar) rightSidebarItems = JSON.parse(savedRightSidebar);
+            
+            if (customBackground) {
+                applyBackgroundSettings();
+            }
+            
+            if (savedFontSettings) {
+                applyFontSettings();
+                applyEditIndicatorColor();
+            }
+            
+            renderSidebarItems();
+        }
+
+        // Save to localStorage
+        function saveToStorage() {
+            localStorage.setItem('bioLinks', JSON.stringify(links));
+            localStorage.setItem('bioGallery', JSON.stringify(gallery));
+            localStorage.setItem('bioTextSections', JSON.stringify(textSections));
+            if (customBackground) {
+                localStorage.setItem('bioBackground', customBackground);
+            }
+            localStorage.setItem('bioBgSettings', JSON.stringify(bgSettings));
+            localStorage.setItem('bioFontSettings', JSON.stringify(fontSettings));
+            localStorage.setItem('bioLeftSidebar', JSON.stringify(leftSidebarItems));
+            localStorage.setItem('bioRightSidebar', JSON.stringify(rightSidebarItems));
+            const profile = {
+                name: document.getElementById('profileName').textContent,
+                bio: document.getElementById('profileBio').textContent,
+                img: document.getElementById('profileImg').src,
+                footer: document.getElementById('footerText').textContent
+            };
+            localStorage.setItem('bioProfile', JSON.stringify(profile));
+        }
+
+        // Apply background settings
+        function applyBackgroundSettings() {
+            const body = document.getElementById('main-body');
+            if (customBackground.startsWith('url(')) {
+                body.style.background = customBackground;
+                body.style.backgroundSize = bgSettings.size;
+                body.style.backgroundRepeat = bgSettings.repeat;
+                body.style.backgroundPosition = bgSettings.position;
+                body.style.backgroundAttachment = bgSettings.attachment;
+            } else {
+                body.style.background = customBackground;
+            }
+        }
+
+        // Apply font settings
+        function applyFontSettings() {
+            const mainContent = document.getElementById('mainContent');
+            mainContent.style.fontFamily = fontSettings.fontFamily;
+            mainContent.style.color = fontSettings.color;
+            mainContent.style.fontSize = fontSettings.size;
+            mainContent.style.fontWeight = fontSettings.weight;
+        }
+
+        // Apply edit indicator color
+        function applyEditIndicatorColor() {
+            const indicator = document.getElementById('editToggleIndicator');
+            const profileIndicator = document.getElementById('profileIndicator');
+            if (indicator) {
+                indicator.style.backgroundColor = fontSettings.editIndicatorColor;
+            }
+            if (profileIndicator) {
+                profileIndicator.style.backgroundColor = fontSettings.editIndicatorColor;
+            }
+        }
+
+        // Render sidebar items
+        function renderSidebarItems() {
+            const leftSidebar = document.getElementById('leftSidebar');
+            const rightSidebar = document.getElementById('rightSidebar');
+            const leftContent = document.getElementById('leftSidebarContent');
+            const rightContent = document.getElementById('rightSidebarContent');
+            const leftEmpty = document.getElementById('leftSidebarEmpty');
+            const rightEmpty = document.getElementById('rightSidebarEmpty');
+            
+            leftContent.innerHTML = '';
+            rightContent.innerHTML = '';
+            
+            // Mobile: Show sidebars at bottom if they have content
+            // Desktop: Show sidebars on sides if they have content or in edit mode
+            const isMobile = window.innerWidth < 1024;
+            
+            if (isMobile) {
+                // Mobile: Show at bottom if has content
+                if (leftSidebarItems.length > 0) {
+                    leftSidebar.classList.remove('hidden');
+                    leftSidebar.classList.add('block');
+                } else {
+                    leftSidebar.classList.add('hidden');
+                    leftSidebar.classList.remove('block');
+                }
+                
+                if (rightSidebarItems.length > 0) {
+                    rightSidebar.classList.remove('hidden');
+                    rightSidebar.classList.add('block');
+                } else {
+                    rightSidebar.classList.add('hidden');
+                    rightSidebar.classList.remove('block');
+                }
+            } else {
+                // Desktop: Show on sides if has content or in edit mode
+                if (leftSidebarItems.length > 0 || isEditMode) {
+                    leftSidebar.classList.remove('hidden');
+                    leftSidebar.classList.add('block');
+                } else {
+                    leftSidebar.classList.add('hidden');
+                    leftSidebar.classList.remove('block');
+                }
+                
+                if (rightSidebarItems.length > 0 || isEditMode) {
+                    rightSidebar.classList.remove('hidden');
+                    rightSidebar.classList.add('block');
+                } else {
+                    rightSidebar.classList.add('hidden');
+                    rightSidebar.classList.remove('block');
+                }
+            }
+            
+            // Show/hide empty state messages
+            if (leftSidebarItems.length > 0) {
+                leftEmpty.classList.add('hidden');
+            } else {
+                leftEmpty.classList.remove('hidden');
+            }
+            
+            if (rightSidebarItems.length > 0) {
+                rightEmpty.classList.add('hidden');
+            } else {
+                rightEmpty.classList.remove('hidden');
+            }
+            
+            leftSidebarItems.forEach((item, index) => {
+                const itemEl = createSidebarItem(item, index, 'left');
+                leftContent.appendChild(itemEl);
+            });
+            
+            rightSidebarItems.forEach((item, index) => {
+                const itemEl = createSidebarItem(item, index, 'right');
+                rightContent.appendChild(itemEl);
+            });
+        }
+
+        // Create sidebar item element
+        function createSidebarItem(item, index, side) {
+            const itemEl = document.createElement('div');
+            itemEl.className = 'relative p-2 rounded-lg animate-fade-in-up';
+            itemEl.style.backgroundColor = item.bgColor || 'rgba(255, 255, 255, 0.1)';
+            itemEl.style.animationDelay = `${(index + 1) * 0.1}s`;
+            
+            let contentHtml = '';
+            
+            if (item.type === 'text') {
+                contentHtml = `<p class="text-sm text-white whitespace-pre-wrap">${item.content}</p>`;
+            } else if (item.type === 'image' || item.type === 'gif') {
+                contentHtml = `<img src="${item.content}" class="w-full h-auto rounded" alt="Sidebar item">`;
+            } else if (item.type === 'shape') {
+                const shapeType = item.content.shapeType || 'circle';
+                const shapeColor = item.content.shapeColor || '#ffffff';
+                
+                const shapeClasses = {
+                    'circle': 'rounded-full',
+                    'rounded-square': 'rounded-xl',
+                    'square': '',
+                    'diamond': 'rotate-45',
+                    'star': '',
+                    'hexagon': '',
+                    'heart': '',
+                    'triangle': ''
+                };
+                
+                const shapeStyles = {
+                    'star': 'clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);',
+                    'hexagon': 'clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);',
+                    'heart': 'clip-path: polygon(50% 15%, 65% 0%, 100% 15%, 100% 50%, 50% 100%, 0% 50%, 0% 15%, 35% 0%);',
+                    'triangle': 'clip-path: polygon(50% 0%, 100% 100%, 0% 100%);'
+                };
+                
+                contentHtml = `<div class="w-12 h-12 mx-auto ${shapeClasses[shapeType] || ''}" style="background-color: ${shapeColor}; ${shapeStyles[shapeType] || ''}"></div>`;
+            }
+            
+            itemEl.innerHTML = `
+                ${contentHtml}
+                <div class="edit-controls absolute top-1 right-1 flex gap-1">
+                    <button class="bg-blue-500 text-white w-5 h-5 rounded text-xs hover:bg-blue-600" onclick="editSidebarItem('${side}', ${index})">
+                        <i class="fas fa-edit text-xs"></i>
+                    </button>
+                    <button class="bg-red-500 text-white w-5 h-5 rounded text-xs hover:bg-red-600" onclick="removeSidebarItem('${side}', ${index})">×</button>
+                </div>
+            `;
+            
+            return itemEl;
+        }
+
+        // Remove sidebar item
+        function removeSidebarItem(side, index) {
+            if (side === 'left') {
+                leftSidebarItems.splice(index, 1);
+            } else {
+                rightSidebarItems.splice(index, 1);
+            }
+            renderSidebarItems();
+            saveToStorage();
+        }
+
+        // Edit sidebar item
+        function editSidebarItem(side, index) {
+            currentSidebar = side;
+            currentSidebarItemIndex = index;
+            
+            const items = side === 'left' ? leftSidebarItems : rightSidebarItems;
+            const item = items[index];
+            
+            document.getElementById('sidebarModalTitle').textContent = 'Edit Sidebar Item';
+            document.getElementById('sidebarItemType').value = item.type;
+            document.getElementById('saveSidebarItem').textContent = 'Save';
+            
+            // Parse existing background color to get hex and transparency
+            if (item.bgColor && item.bgColor.startsWith('rgba')) {
+                const rgbaMatch = item.bgColor.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/);
+                if (rgbaMatch) {
+                    const r = parseInt(rgbaMatch[1]).toString(16).padStart(2, '0');
+                    const g = parseInt(rgbaMatch[2]).toString(16).padStart(2, '0');
+                    const b = parseInt(rgbaMatch[3]).toString(16).padStart(2, '0');
+                    const alpha = parseFloat(rgbaMatch[4]);
+                    document.getElementById('sidebarBgColor').value = `#${r}${g}${b}`;
+                    document.getElementById('sidebarBgTransparency').value = Math.round(alpha * 100);
+                    document.getElementById('transparencyValue').textContent = Math.round(alpha * 100) + '%';
+                }
+            } else {
+                document.getElementById('sidebarBgColor').value = '#ffffff';
+                document.getElementById('sidebarBgTransparency').value = 10;
+                document.getElementById('transparencyValue').textContent = '10%';
+            }
+            
+            // Show/hide appropriate input sections
+            const textSection = document.getElementById('textInputSection');
+            const imageSection = document.getElementById('imageInputSection');
+            const shapeSection = document.getElementById('shapeInputSection');
+            
+            textSection.style.display = 'none';
+            imageSection.style.display = 'none';
+            shapeSection.style.display = 'none';
+            
+            if (item.type === 'text') {
+                textSection.style.display = 'block';
+                document.getElementById('sidebarTextContent').value = item.content;
+            } else if (item.type === 'image' || item.type === 'gif') {
+                imageSection.style.display = 'block';
+                // Image content is base64, can't pre-fill file input
+            } else if (item.type === 'shape') {
+                shapeSection.style.display = 'block';
+                document.getElementById('sidebarShapeType').value = item.content.shapeType;
+                document.getElementById('sidebarShapeColor').value = item.content.shapeColor;
+            }
+            
+            document.getElementById('sidebarItemModal').classList.add('active');
+        }
+
+        // Render links
+        function renderLinks() {
+            const container = document.getElementById('linksContainer');
+            container.innerHTML = '';
+            
+            links.forEach((link, index) => {
+                const linkEl = document.createElement('div');
+                const cardColorClass = link.cardColor || 'glass-effect';
+                linkEl.className = `link-card ${cardColorClass} rounded-xl p-4 animate-fade-in-up`;
+                linkEl.style.animationDelay = `${(index + 1) * 0.1}s`;
+                linkEl.style.color = link.textColor || '#ffffff';
+                
+                // Check if icon is custom (starts with "custom:")
+                const isCustomIcon = link.icon && link.icon.startsWith('custom:');
+                const iconHtml = isCustomIcon 
+                    ? `<img src="${link.icon.replace('custom:', '')}" class="w-6 h-6 object-contain">`
+                    : `<i class="${link.icon}"></i>`;
+                
+                linkEl.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3 flex-1">
+                            <div class="rounded-lg p-2" style="background-color: ${link.color}">
+                                ${iconHtml}
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold editable" contenteditable="false">${link.title}</h3>
+                                <p class="text-sm opacity-70 editable" contenteditable="false">${link.desc}</p>
+                                ${link.optionalText ? `<p class="text-xs opacity-50 editable" contenteditable="false">${link.optionalText}</p>` : ''}
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-arrow-right opacity-60"></i>
+                            <button class="edit-controls bg-red-500 text-white px-2 py-1 rounded text-sm" onclick="removeLink(${link.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <button class="edit-controls bg-blue-500 text-white px-2 py-1 rounded text-sm" onclick="editLink(${link.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                if (!isEditMode) {
+                    linkEl.addEventListener('click', (e) => {
+                        if (!e.target.closest('.edit-controls') && !e.target.closest('.editable')) {
+                            window.open(link.url, '_blank');
+                        }
+                    });
+                }
+                
+                container.appendChild(linkEl);
+            });
+        }
+
+        // Render gallery
+        function renderGallery() {
+            const container = document.getElementById('galleryContainer');
+            container.innerHTML = '';
+            
+            gallery.forEach((img, index) => {
+                const imgEl = document.createElement('div');
+                imgEl.className = 'relative';
+                imgEl.innerHTML = `
+                    <img src="${img.src}" alt="Gallery image" class="gallery-img w-full rounded-lg object-cover">
+                    <button class="remove-btn edit-controls" onclick="removeGalleryImage(${index})">×</button>
+                    ${img.link ? `<a href="${img.link}" target="_blank" class="absolute inset-0"></a>` : ''}
+                `;
+                container.appendChild(imgEl);
+            });
+        }
+
+        // Render text sections
+        function renderTextSections() {
+            const container = document.getElementById('textSectionsContainer');
+            container.innerHTML = '';
+            
+            textSections.forEach((section, index) => {
+                const sectionEl = document.createElement('div');
+                sectionEl.className = `rounded-xl p-4 animate-fade-in-up relative`;
+                sectionEl.style.animationDelay = `${(index + 1) * 0.1}s`;
+                sectionEl.style.backgroundColor = section.bgColor || 'rgba(255, 255, 255, 0.1)';
+                sectionEl.style.color = '#ffffff';
+                sectionEl.innerHTML = `
+                    ${section.title ? `<h3 class="font-semibold mb-2 editable" contenteditable="false">${section.title}</h3>` : ''}
+                    <p class="text-sm opacity-90 editable" contenteditable="false">${section.content}</p>
+                    <button class="remove-btn edit-controls" onclick="removeTextSection(${index})">×</button>
+                    <button class="edit-controls absolute top-2 right-2 bg-blue-500 text-white px-2 py-1 rounded text-sm" onclick="editTextSection(${index})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                `;
+                container.appendChild(sectionEl);
+            });
+        }
+
+        // Edit mode toggle
+        document.getElementById('editToggle').addEventListener('click', () => {
+            if (isAuthenticated && currentUser === profileOwner) {
+                // User is authenticated and is the profile owner
+                isEditMode = !isEditMode;
+                document.body.classList.toggle('edit-mode', isEditMode);
+                document.getElementById('editToggle').innerHTML = isEditMode 
+                    ? '<i class="fas fa-check mr-2"></i>Done Editing'
+                    : '<i class="fas fa-edit mr-2"></i>Edit Mode';
+                
+                // Enable/disable contenteditable
+                document.querySelectorAll('.editable').forEach(el => {
+                    el.contentEditable = isEditMode;
+                });
+                
+                // Re-render sidebars (handles mobile/desktop logic)
+                renderSidebarItems();
+                
+                if (!isEditMode) {
+                    saveToStorage();
+                    saveProfileToAPI();
+                }
+            } else if (!isAuthenticated) {
+                // Not authenticated, show login modal
+                document.getElementById('loginModal').classList.add('active');
+            } else {
+                // Authenticated but not the owner
+                alert('You can only edit your own profile. Create your own profile to edit!');
+            }
+        });
+
+        // Login button handler
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!username || !password) {
+                alert('Please enter username and password');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Login failed');
+                }
+                
+                // Successful login
+                isAuthenticated = true;
+                currentUser = data.user.username;
+                authToken = data.token;
+                localStorage.setItem('authToken', data.token);
+                localStorage.setItem('currentUser', data.user.username);
+                
+                document.getElementById('loginModal').classList.remove('active');
+                
+                // Redirect to user's profile
+                window.location.hash = `/${currentUser}`;
+                
+                // Load profile data from API
+                await loadProfileFromAPI();
+                
+                // Enable edit mode after successful login
+                isEditMode = true;
+                document.body.classList.add('edit-mode');
+                document.getElementById('editToggle').innerHTML = '<i class="fas fa-check mr-2"></i>Done Editing';
+                
+                // Enable contenteditable
+                document.querySelectorAll('.editable').forEach(el => {
+                    el.contentEditable = true;
+                });
+                
+                // Show sidebars
+                document.getElementById('leftSidebar').classList.remove('hidden');
+                document.getElementById('rightSidebar').classList.remove('hidden');
+                renderSidebarItems();
+                
+                alert('Login successful! Edit mode enabled.');
+            } catch (error) {
+                alert(error.message || 'Login failed. Please try again.');
+            }
+        });
+
+        // Close login modal
+        document.getElementById('closeLoginModal').addEventListener('click', () => {
+            document.getElementById('loginModal').classList.remove('active');
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+        });
+
+        // Google login button
+        document.getElementById('googleLoginBtn').addEventListener('click', () => {
+            window.location.href = `${API_BASE_URL}/auth/google`;
+        });
+
+        // Join Now button
+        document.getElementById('joinNowBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('registerModal').classList.add('active');
+        });
+
+        // Show forgot password modal
+        document.getElementById('showForgotPasswordBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('loginModal').classList.remove('active');
+            document.getElementById('forgotPasswordModal').classList.add('active');
+        });
+
+        // Show login from forgot password
+        document.getElementById('showLoginFromForgotBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('forgotPasswordModal').classList.remove('active');
+            document.getElementById('loginModal').classList.add('active');
+        });
+
+        // Close forgot password modal
+        document.getElementById('closeForgotPasswordModal').addEventListener('click', () => {
+            document.getElementById('forgotPasswordModal').classList.remove('active');
+            document.getElementById('forgotEmail').value = '';
+        });
+
+        // Send OTP button
+        document.getElementById('sendOTPBtn').addEventListener('click', async () => {
+            const email = document.getElementById('forgotEmail').value;
+            
+            if (!email) {
+                alert('Please enter your email');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/forgot-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert(data.message);
+                    document.getElementById('forgotPasswordModal').classList.remove('active');
+                    document.getElementById('resetPasswordModal').classList.add('active');
+                    // Store email for reset
+                    document.getElementById('resetPasswordModal').dataset.email = email;
+                } else {
+                    throw new Error(data.error || 'Failed to send OTP');
+                }
+            } catch (error) {
+                alert(error.message || 'Failed to send OTP');
+            }
+        });
+
+        // Close reset password modal
+        document.getElementById('closeResetPasswordModal').addEventListener('click', () => {
+            document.getElementById('resetPasswordModal').classList.remove('active');
+            document.getElementById('resetOTP').value = '';
+            document.getElementById('resetNewPassword').value = '';
+            document.getElementById('resetConfirmPassword').value = '';
+        });
+
+        // Reset password button
+        document.getElementById('resetPasswordBtn').addEventListener('click', async () => {
+            const email = document.getElementById('resetPasswordModal').dataset.email;
+            const otp = document.getElementById('resetOTP').value;
+            const newPassword = document.getElementById('resetNewPassword').value;
+            const confirmPassword = document.getElementById('resetConfirmPassword').value;
+            
+            if (!otp || !newPassword) {
+                alert('Please enter OTP and new password');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                alert('Password must be at least 6 characters');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/reset-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, otp, newPassword })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert(data.message);
+                    document.getElementById('resetPasswordModal').classList.remove('active');
+                    document.getElementById('loginModal').classList.add('active');
+                } else {
+                    throw new Error(data.error || 'Failed to reset password');
+                }
+            } catch (error) {
+                alert(error.message || 'Failed to reset password');
+            }
+        });
+
+        // Show register modal
+        document.getElementById('showRegisterBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('loginModal').classList.remove('active');
+            document.getElementById('registerModal').classList.add('active');
+        });
+
+        // Show login modal from register
+        document.getElementById('showLoginBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('registerModal').classList.remove('active');
+            document.getElementById('loginModal').classList.add('active');
+        });
+
+        // Close register modal
+        document.getElementById('closeRegisterModal').addEventListener('click', () => {
+            document.getElementById('registerModal').classList.remove('active');
+            document.getElementById('registerUsername').value = '';
+            document.getElementById('registerEmail').value = '';
+            document.getElementById('registerPassword').value = '';
+            document.getElementById('registerConfirmPassword').value = '';
+        });
+
+        // Register button handler
+        document.getElementById('registerBtn').addEventListener('click', async () => {
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            
+            if (!username || !password) {
+                alert('Username and password are required');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Registration failed');
+                }
+                
+                // Successful registration
+                isAuthenticated = true;
+                currentUser = data.user.username;
+                authToken = data.token;
+                localStorage.setItem('authToken', data.token);
+                localStorage.setItem('currentUser', data.user.username);
+                
+                document.getElementById('registerModal').classList.remove('active');
+                
+                // Redirect to user's profile
+                window.location.hash = `/${currentUser}`;
+                
+                // Load profile data from API
+                await loadProfileFromAPI();
+                
+                // Enable edit mode after successful registration
+                isEditMode = true;
+                document.body.classList.add('edit-mode');
+                document.getElementById('editToggle').innerHTML = '<i class="fas fa-check mr-2"></i>Done Editing';
+                
+                // Enable contenteditable
+                document.querySelectorAll('.editable').forEach(el => {
+                    el.contentEditable = true;
+                });
+                
+                // Show sidebars
+                document.getElementById('leftSidebar').classList.remove('hidden');
+                document.getElementById('rightSidebar').classList.remove('hidden');
+                renderSidebarItems();
+                
+                alert('Registration successful! Edit mode enabled.');
+            } catch (error) {
+                alert(error.message || 'Registration failed. Please try again.');
+            }
+        });
+
+        // Load profile from API
+        async function loadProfileFromAPI() {
+            try {
+                // Get username from hash URL or use current user
+                const hash = window.location.hash;
+                let urlUsername = null;
+                
+                if (hash && hash.startsWith('#/')) {
+                    urlUsername = hash.substring(2); // Remove '#/'
+                }
+                
+                if (urlUsername) {
+                    // Load public profile by username
+                    profileOwner = urlUsername;
+                    const response = await fetch(`${API_BASE_URL}/api/profile/${urlUsername}`);
+                    
+                    if (response.ok) {
+                        const profileData = await response.json();
+                        renderProfileFromAPI(profileData);
+                        
+                        // Hide edit toggle if not the owner
+                        if (currentUser !== urlUsername) {
+                            document.getElementById('editToggle').style.display = 'none';
+                        } else {
+                            document.getElementById('editToggle').style.display = 'flex';
+                        }
+                    } else {
+                        console.log('Profile not found');
+                    }
+                } else if (isAuthenticated && currentUser) {
+                    // Load own profile
+                    profileOwner = currentUser;
+                    const response = await fetch(`${API_BASE_URL}/api/profile`, {
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const profileData = await response.json();
+                        renderProfileFromAPI(profileData);
+                        document.getElementById('editToggle').style.display = 'flex';
+                    } else {
+                        // Profile doesn't exist yet, use localStorage data
+                        console.log('No profile found, using localStorage data');
+                        document.getElementById('editToggle').style.display = 'flex';
+                    }
+                } else {
+                    // Not authenticated, use localStorage data
+                    console.log('Not authenticated, using localStorage data');
+                    document.getElementById('editToggle').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Failed to load profile:', error);
+            }
+        }
+
+        // Render profile from API response
+        function renderProfileFromAPI(profileData) {
+            // Profile data structure:
+            // {
+            //   name: string,
+            //   description: string,
+            //   profileImage: string (URL),
+            //   links: [{ id, title, desc, optionalText, url, icon, color, textColor, cardColor }],
+            //   gallery: [{ id, image, link }],
+            //   textSections: [{ id, title, content, bgColor }],
+            //   leftSidebar: [{ type, content, bgColor, shapeColor (for shapes) }],
+            //   rightSidebar: [{ type, content, bgColor, shapeColor (for shapes) }],
+            //   socialIcons: [{ platform, url, icon, customIcon, color, tooltip, iconShape }],
+            //   background: { type, value, settings: { size, repeat, position, attachment } },
+            //   font: { fontFamily, color, size, editIndicatorColor },
+            //   footer: string,
+            //   nsfw: boolean
+            // }
+            
+            if (profileData.name) {
+                document.getElementById('profileName').textContent = profileData.name;
+            }
+            if (profileData.description) {
+                document.getElementById('profileBio').textContent = profileData.description;
+            }
+            if (profileData.profileImage) {
+                document.getElementById('profileImg').src = profileData.profileImage;
+            }
+            if (profileData.footer) {
+                document.getElementById('footerText').textContent = profileData.footer;
+            }
+            if (profileData.nsfw !== undefined) {
+                isNSFW = profileData.nsfw;
+                document.getElementById('nsfwToggle').checked = isNSFW;
+                handleNSFWStatus();
+            }
+            if (profileData.links) {
+                links = profileData.links;
+                renderLinks();
+            }
+            if (profileData.gallery) {
+                gallery = profileData.gallery;
+                renderGallery();
+            }
+            if (profileData.textSections) {
+                textSections = profileData.textSections;
+                renderTextSections();
+            }
+            if (profileData.leftSidebar) {
+                leftSidebarItems = profileData.leftSidebar;
+            }
+            if (profileData.rightSidebar) {
+                rightSidebarItems = profileData.rightSidebar;
+            }
+            if (profileData.socialIcons) {
+                // Render social icons
+                renderSocialIcons(profileData.socialIcons);
+            }
+            if (profileData.background) {
+                customBackground = profileData.background.value;
+                bgSettings = profileData.background.settings || bgSettings;
+                applyBackgroundSettings();
+            }
+            if (profileData.font) {
+                fontSettings = profileData.font;
+                applyFontSettings();
+                applyEditIndicatorColor();
+            }
+            
+            renderSidebarItems();
+        }
+
+        // Render social icons from API
+        function renderSocialIcons(socialIcons) {
+            const container = document.getElementById('socialIcons');
+            container.innerHTML = '';
+            
+            socialIcons.forEach(icon => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'social-icon-wrapper relative';
+                
+                if (icon.customIcon) {
+                    // Apply shape if specified
+                    let shapeStyle = '';
+                    if (icon.iconShape) {
+                        const shapeClasses = {
+                            'circle': 'rounded-full',
+                            'rounded-square': 'rounded-xl',
+                            'square': '',
+                            'diamond': 'rotate-45',
+                            'star': '',
+                            'hexagon': '',
+                            'heart': '',
+                            'triangle': '',
+                            'pentagon': '',
+                            'rhomboid': '',
+                            'shield': ''
+                        };
+                        
+                        const shapeStyles = {
+                            'star': 'clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);',
+                            'hexagon': 'clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);',
+                            'octagon': 'clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);',
+                            'heart': 'clip-path: polygon(50% 15%, 65% 0%, 100% 15%, 100% 50%, 50% 100%, 0% 50%, 0% 15%, 35% 0%);',
+                            'triangle': 'clip-path: polygon(50% 0%, 100% 100%, 0% 100%);',
+                            'pentagon': 'clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);',
+                            'rhomboid': 'clip-path: polygon(25% 0%, 100% 0%, 75% 100%, 0% 100%);',
+                            'shield': 'clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);'
+                        };
+                        
+                        shapeStyle = `${shapeClasses[icon.iconShape] || ''} ${shapeStyles[icon.iconShape] || ''}`;
+                    }
+                    
+                    wrapper.innerHTML = `
+                        <a href="${icon.url}" target="_blank" class="social-icon text-white/80 hover:text-white" style="color: ${icon.iconColor || icon.color}" data-platform="${icon.platform}" data-shape="${icon.iconShape || ''}">
+                            <img src="${icon.customIcon}" class="w-6 h-6 object-contain ${shapeStyle}">
+                        </a>
+                        <span class="social-tooltip">${icon.tooltip}</span>
+                        <button class="remove-btn edit-controls" onclick="removeSocialIcon(this)">×</button>
+                    `;
+                } else {
+                    wrapper.innerHTML = `
+                        <a href="${icon.url}" target="_blank" class="social-icon text-white/80 hover:text-white" style="color: ${icon.color}" data-platform="${icon.platform}">
+                            <i class="${icon.icon} text-xl"></i>
+                        </a>
+                        <span class="social-tooltip">${icon.tooltip}</span>
+                        <button class="remove-btn edit-controls" onclick="removeSocialIcon(this)">×</button>
+                    `;
+                }
+                container.appendChild(wrapper);
+            });
+        }
+
+        // Save profile to API
+        async function saveProfileToAPI() {
+            const profileData = {
+                name: document.getElementById('profileName').textContent,
+                description: document.getElementById('profileBio').textContent,
+                profileImage: document.getElementById('profileImg').src,
+                footer: document.getElementById('footerText').textContent,
+                nsfw: document.getElementById('nsfwToggle').checked,
+                links: links,
+                gallery: gallery,
+                textSections: textSections,
+                leftSidebar: leftSidebarItems,
+                rightSidebar: rightSidebarItems,
+                socialIcons: getSocialIconsData(),
+                background: {
+                    type: customBackground ? 'custom' : 'gradient',
+                    value: customBackground,
+                    settings: bgSettings
+                },
+                font: fontSettings
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/profile`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(profileData)
+                });
+                
+                if (response.ok) {
+                    console.log('Profile saved to API successfully');
+                } else {
+                    console.error('Failed to save profile to API');
+                }
+            } catch (error) {
+                console.error('Failed to save profile:', error);
+            }
+        }
+
+        // Get social icons data for API
+        function getSocialIconsData() {
+            const socialIcons = [];
+            document.querySelectorAll('.social-icon-wrapper').forEach(wrapper => {
+                const link = wrapper.querySelector('a');
+                const tooltip = wrapper.querySelector('.social-tooltip').textContent;
+                const icon = wrapper.querySelector('i');
+                const img = wrapper.querySelector('img');
+                
+                socialIcons.push({
+                    platform: link.dataset.platform || 'other',
+                    url: link.href,
+                    icon: icon ? icon.className : null,
+                    customIcon: img ? img.src : null,
+                    color: link.style.color,
+                    iconColor: link.style.color, // For custom icons
+                    iconShape: link.dataset.shape || null, // Shape for custom icons
+                    tooltip: tooltip
+                });
+            });
+            return socialIcons;
+        }
+
+        // Handle NSFW status
+        function handleNSFWStatus() {
+            const nsfwWarning = document.getElementById('nsfwWarning');
+            const mainContentArea = document.getElementById('mainContentArea');
+            
+            // Don't show warning if user is the profile owner
+            if (currentUser === profileOwner) {
+                nsfwWarning.classList.add('hidden');
+                mainContentArea.classList.remove('nsfw-blurred');
+                return;
+            }
+            
+            if (isNSFW && !ageConfirmed) {
+                // Show warning and blur content
+                nsfwWarning.classList.remove('hidden');
+                mainContentArea.classList.add('nsfw-blurred');
+            } else {
+                // Hide warning and show content
+                nsfwWarning.classList.add('hidden');
+                mainContentArea.classList.remove('nsfw-blurred');
+            }
+        }
+
+        // Confirm age button handler
+        document.getElementById('confirmAgeBtn').addEventListener('click', () => {
+            ageConfirmed = true;
+            localStorage.setItem('ageConfirmed', 'true');
+            handleNSFWStatus();
+        });
+
+        // Profile image upload
+        document.getElementById('profileUpload').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('profileImg').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Add link
+        document.getElementById('addLinkBtn').addEventListener('click', () => {
+            currentLinkId = null;
+            document.getElementById('linkModalTitle').textContent = 'Add Link';
+            document.getElementById('linkTitle').value = '';
+            document.getElementById('linkDesc').value = '';
+            document.getElementById('linkOptionalText').value = '';
+            document.getElementById('linkUrl').value = '';
+            document.getElementById('linkIcon').value = 'fas fa-globe';
+            document.getElementById('selectedIconDisplay').innerHTML = '<i class="fas fa-globe mr-2"></i>Choose an icon';
+            document.getElementById('linkIconColor').value = '#ffffff';
+            document.getElementById('linkTextColor').value = '#ffffff';
+            document.getElementById('linkCardColor').value = 'glass-effect';
+            customIconDataUrl = null;
+            document.getElementById('linkModal').classList.add('active');
+        });
+
+        // Edit link
+        function editLink(id) {
+            const link = links.find(l => l.id === id);
+            if (link) {
+                currentLinkId = id;
+                document.getElementById('linkModalTitle').textContent = 'Edit Link';
+                document.getElementById('linkTitle').value = link.title;
+                document.getElementById('linkDesc').value = link.desc;
+                document.getElementById('linkOptionalText').value = link.optionalText || '';
+                document.getElementById('linkUrl').value = link.url;
+                document.getElementById('linkIcon').value = link.icon;
+                customIconDataUrl = null;
+                
+                // Handle custom icon display
+                if (link.icon && link.icon.startsWith('custom:')) {
+                    document.getElementById('selectedIconDisplay').innerHTML = `<img src="${link.icon.replace('custom:', '')}" class="w-5 h-5 mr-2 inline">Custom Icon`;
+                } else {
+                    document.getElementById('selectedIconDisplay').innerHTML = `<i class="${link.icon} mr-2"></i>${link.icon}`;
+                }
+                
+                document.getElementById('linkIconColor').value = link.color || '#ffffff';
+                document.getElementById('linkTextColor').value = link.textColor || '#ffffff';
+                document.getElementById('linkCardColor').value = link.cardColor || 'glass-effect';
+                document.getElementById('linkModal').classList.add('active');
+            }
+        }
+
+        // Remove link
+        function removeLink(id) {
+            links = links.filter(l => l.id !== id);
+            renderLinks();
+        }
+
+        // Save link
+        document.getElementById('saveLink').addEventListener('click', () => {
+            const title = document.getElementById('linkTitle').value;
+            const desc = document.getElementById('linkDesc').value;
+            const optionalText = document.getElementById('linkOptionalText').value;
+            const url = document.getElementById('linkUrl').value;
+            const icon = document.getElementById('linkIcon').value;
+            const color = document.getElementById('linkIconColor').value;
+            const textColor = document.getElementById('linkTextColor').value;
+            const cardColor = document.getElementById('linkCardColor').value;
+            
+            // Validate URL if it matches a known platform
+            if (url && icon) {
+                const validation = validateUrl(url, icon);
+                if (!validation.valid) {
+                    if (confirm(`${validation.message}\n\nDo you want to continue anyway?`)) {
+                        // User chose to continue despite validation warning
+                    } else {
+                        // User chose to fix the URL
+                        return;
+                    }
+                }
+            }
+            
+            if (title && url) {
+                if (currentLinkId) {
+                    const index = links.findIndex(l => l.id === currentLinkId);
+                    if (index !== -1) {
+                        links[index] = { ...links[index], title, desc, optionalText, url, icon, color, textColor, cardColor };
+                    }
+                } else {
+                    const newId = Math.max(...links.map(l => l.id), 0) + 1;
+                    links.push({ id: newId, title, desc, optionalText, url, icon, color, textColor, cardColor });
+                }
+                renderLinks();
+                document.getElementById('linkModal').classList.remove('active');
+            }
+        });
+
+        // Close link modal
+        document.getElementById('closeLinkModal').addEventListener('click', () => {
+            document.getElementById('linkModal').classList.remove('active');
+        });
+
+        // Add social icon
+        document.getElementById('addSocialBtn').addEventListener('click', () => {
+            document.getElementById('socialModal').classList.add('active');
+            // Auto-fill tooltip with default platform name
+            const defaultPlatform = document.getElementById('socialPlatform').value;
+            document.getElementById('socialTooltip').value = platformNames[defaultPlatform] || 'Social';
+        });
+
+        // Save social icon
+        document.getElementById('saveSocial').addEventListener('click', () => {
+            const platform = document.getElementById('socialPlatform').value;
+            const url = document.getElementById('socialUrl').value;
+            const iconUpload = document.getElementById('socialIconUpload').files[0];
+            const tooltipText = document.getElementById('socialTooltip').value || platformNames[platform] || 'Social';
+            const iconColor = document.getElementById('socialIconColor').value;
+            const selectedShape = document.getElementById('selectedShape').value;
+            
+            // Validate URL if provided and not "other" platform
+            if (url && platform !== 'other' && !iconUpload) {
+                const validation = validateUrl(url, platform);
+                if (!validation.valid) {
+                    if (confirm(`${validation.message}\n\nDo you want to continue anyway?`)) {
+                        // User chose to continue despite validation warning
+                    } else {
+                        // User chose to fix the URL
+                        return;
+                    }
+                }
+            }
+            
+            // For "other" platform, require custom icon upload
+            if (platform === 'other' && !iconUpload) {
+                alert('Please upload a custom icon for the "Other" platform option.');
+                return;
+            }
+            
+            const container = document.getElementById('socialIcons');
+            const wrapper = document.createElement('div');
+            wrapper.className = 'social-icon-wrapper relative';
+            
+            if (iconUpload || platform === 'other') {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const shapeClass = `shape-${selectedShape}`;
+                    wrapper.innerHTML = `
+                        <a href="${url}" target="_blank" class="social-icon text-white/80 hover:text-white" style="color: ${iconColor}" data-platform="${platform}" data-shape="${selectedShape}">
+                            <img src="${e.target.result}" class="w-6 h-6 object-contain ${shapeClass}">
+                        </a>
+                        <span class="social-tooltip">${tooltipText}</span>
+                        <button class="remove-btn edit-controls" onclick="removeSocialIcon(this)">×</button>
+                    `;
+                    container.appendChild(wrapper);
+                };
+                reader.readAsDataURL(iconUpload);
+            } else {
+                wrapper.innerHTML = `
+                    <a href="${url}" target="_blank" class="social-icon text-white/80 hover:text-white" style="color: ${iconColor}" data-platform="${platform}">
+                        <i class="${platform} text-xl"></i>
+                    </a>
+                    <span class="social-tooltip">${tooltipText}</span>
+                    <button class="remove-btn edit-controls" onclick="removeSocialIcon(this)">×</button>
+                `;
+                container.appendChild(wrapper);
+            }
+            
+            document.getElementById('socialModal').classList.remove('active');
+            document.getElementById('socialUrl').value = '';
+            document.getElementById('socialTooltip').value = '';
+            document.getElementById('socialIconUpload').value = '';
+            document.getElementById('socialIconColor').value = '#ffffff';
+            document.getElementById('selectedShape').value = 'circle';
+            document.getElementById('selectedShapeDisplay').innerHTML = 'Choose a shape';
+            
+            // Reset platform to first option and hide custom upload
+            document.getElementById('socialPlatform').selectedIndex = 0;
+            document.getElementById('customIconUpload').style.display = 'none';
+            document.getElementById('iconShapeSelection').style.display = 'none';
+        });
+
+        // Remove social icon
+        function removeSocialIcon(btn) {
+            btn.parentElement.remove();
+        }
+
+        // Close social modal
+        document.getElementById('closeSocialModal').addEventListener('click', () => {
+            document.getElementById('socialModal').classList.remove('active');
+            document.getElementById('socialUrl').value = '';
+            document.getElementById('socialTooltip').value = '';
+            document.getElementById('socialIconUpload').value = '';
+            document.getElementById('socialIconColor').value = '#ffffff';
+            document.getElementById('selectedShape').value = 'circle';
+            document.getElementById('selectedShapeDisplay').innerHTML = 'Choose a shape';
+            document.getElementById('socialPlatform').selectedIndex = 0;
+            document.getElementById('customIconUpload').style.display = 'none';
+            document.getElementById('iconShapeSelection').style.display = 'none';
+        });
+
+        // Shape picker
+        document.getElementById('shapePickerBtn').addEventListener('click', () => {
+            document.getElementById('shapePickerModal').classList.add('active');
+            
+            // Update selected state
+            const currentShape = document.getElementById('selectedShape').value;
+            document.querySelectorAll('.shape-option').forEach(opt => {
+                opt.classList.remove('selected');
+                if (opt.dataset.shape === currentShape) {
+                    opt.classList.add('selected');
+                }
+            });
+            
+            // Update display with current shape icon
+            const shapeDisplay = document.getElementById('selectedShapeDisplay');
+            const shapeClasses = {
+                'circle': 'rounded-full',
+                'rounded-square': 'rounded-xl',
+                'square': '',
+                'diamond': 'rotate-45',
+                'star': '',
+                'hexagon': '',
+                'octagon': '',
+                'heart': '',
+                'triangle': '',
+                'pentagon': '',
+                'rhomboid': '',
+                'shield': ''
+            };
+            
+            const shapeStyles = {
+                'star': 'clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);',
+                'hexagon': 'clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);',
+                'octagon': 'clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);',
+                'heart': 'clip-path: polygon(50% 15%, 65% 0%, 100% 15%, 100% 50%, 50% 100%, 0% 50%, 0% 15%, 35% 0%);',
+                'triangle': 'clip-path: polygon(50% 0%, 100% 100%, 0% 100%);',
+                'pentagon': 'clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);',
+                'rhomboid': 'clip-path: polygon(25% 0%, 100% 0%, 75% 100%, 0% 100%);',
+                'shield': 'clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);'
+            };
+            
+            shapeDisplay.innerHTML = `<div class="w-6 h-6 bg-gray-300 inline-block ${shapeClasses[currentShape] || ''}" style="${shapeStyles[currentShape] || ''}"></div>`;
+        });
+
+        // Shape selection
+        document.querySelectorAll('.shape-option').forEach(option => {
+            option.addEventListener('click', () => {
+                const shape = option.dataset.shape;
+                document.getElementById('selectedShape').value = shape;
+                
+                // Update display with shape icon instead of text
+                const shapeDisplay = document.getElementById('selectedShapeDisplay');
+                const shapeClasses = {
+                    'circle': 'rounded-full',
+                    'rounded-square': 'rounded-xl',
+                    'square': '',
+                    'diamond': 'rotate-45',
+                    'star': '',
+                    'hexagon': '',
+                    'octagon': '',
+                    'heart': '',
+                    'triangle': '',
+                    'pentagon': '',
+                    'rhomboid': '',
+                    'shield': ''
+                };
+                
+                const shapeStyles = {
+                    'star': 'clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);',
+                    'hexagon': 'clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);',
+                    'octagon': 'clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);',
+                    'heart': 'clip-path: polygon(50% 15%, 65% 0%, 100% 15%, 100% 50%, 50% 100%, 0% 50%, 0% 15%, 35% 0%);',
+                    'triangle': 'clip-path: polygon(50% 0%, 100% 100%, 0% 100%);',
+                    'pentagon': 'clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);',
+                    'rhomboid': 'clip-path: polygon(25% 0%, 100% 0%, 75% 100%, 0% 100%);',
+                    'shield': 'clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);'
+                };
+                
+                shapeDisplay.innerHTML = `<div class="w-6 h-6 bg-gray-300 inline-block ${shapeClasses[shape] || ''}" style="${shapeStyles[shape] || ''}"></div>`;
+                
+                // Remove selected class from all options
+                document.querySelectorAll('.shape-option').forEach(opt => opt.classList.remove('selected'));
+                // Add selected class to clicked option
+                option.classList.add('selected');
+                
+                document.getElementById('shapePickerModal').classList.remove('active');
+            });
+        });
+
+        // Close shape picker modal
+        document.getElementById('closeShapePicker').addEventListener('click', () => {
+            document.getElementById('shapePickerModal').classList.remove('active');
+        });
+
+        // Sidebar item type change handler
+        document.getElementById('sidebarItemType').addEventListener('change', (e) => {
+            const type = e.target.value;
+            const textSection = document.getElementById('textInputSection');
+            const imageSection = document.getElementById('imageInputSection');
+            const shapeSection = document.getElementById('shapeInputSection');
+            
+            textSection.style.display = type === 'text' ? 'block' : 'none';
+            imageSection.style.display = (type === 'image' || type === 'gif') ? 'block' : 'none';
+            shapeSection.style.display = type === 'shape' ? 'block' : 'none';
+        });
+
+        // Transparency slider handler
+        document.getElementById('sidebarBgTransparency').addEventListener('input', (e) => {
+            document.getElementById('transparencyValue').textContent = e.target.value + '%';
+        });
+
+        // Add left sidebar item
+        document.getElementById('addLeftSidebarItem').addEventListener('click', () => {
+            currentSidebar = 'left';
+            currentSidebarItemIndex = null;
+            document.getElementById('sidebarModalTitle').textContent = 'Add Left Sidebar Item';
+            document.getElementById('saveSidebarItem').textContent = 'Add';
+            resetSidebarModal();
+            document.getElementById('sidebarItemModal').classList.add('active');
+        });
+
+        // Add right sidebar item
+        document.getElementById('addRightSidebarItem').addEventListener('click', () => {
+            currentSidebar = 'right';
+            currentSidebarItemIndex = null;
+            document.getElementById('sidebarModalTitle').textContent = 'Add Right Sidebar Item';
+            document.getElementById('saveSidebarItem').textContent = 'Add';
+            resetSidebarModal();
+            document.getElementById('sidebarItemModal').classList.add('active');
+        });
+
+        // Reset sidebar modal
+        function resetSidebarModal() {
+            document.getElementById('sidebarItemType').value = 'text';
+            document.getElementById('sidebarTextContent').value = '';
+            document.getElementById('sidebarImageUpload').value = '';
+            document.getElementById('sidebarShapeType').value = 'circle';
+            document.getElementById('sidebarShapeColor').value = '#ffffff';
+            document.getElementById('sidebarBgColor').value = '#ffffff';
+            document.getElementById('sidebarBgTransparency').value = 10;
+            document.getElementById('transparencyValue').textContent = '10%';
+            document.getElementById('textInputSection').style.display = 'block';
+            document.getElementById('imageInputSection').style.display = 'none';
+            document.getElementById('shapeInputSection').style.display = 'none';
+        }
+
+        // Save sidebar item
+        document.getElementById('saveSidebarItem').addEventListener('click', () => {
+            const type = document.getElementById('sidebarItemType').value;
+            const bgColorHex = document.getElementById('sidebarBgColor').value;
+            const transparency = document.getElementById('sidebarBgTransparency').value;
+            
+            // Convert hex to rgba with transparency
+            const r = parseInt(bgColorHex.slice(1, 3), 16);
+            const g = parseInt(bgColorHex.slice(3, 5), 16);
+            const b = parseInt(bgColorHex.slice(5, 7), 16);
+            const alpha = transparency / 100;
+            const bgColor = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+            
+            let content = '';
+            
+            if (type === 'text') {
+                content = document.getElementById('sidebarTextContent').value;
+                if (!content) {
+                    alert('Please enter text content');
+                    return;
+                }
+            } else if (type === 'image' || type === 'gif') {
+                const file = document.getElementById('sidebarImageUpload').files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const item = {
+                            type,
+                            content: e.target.result,
+                            bgColor
+                        };
+                        saveSidebarItemToState(item);
+                    };
+                    reader.readAsDataURL(file);
+                    return;
+                } else if (currentSidebarItemIndex !== null) {
+                    // Editing existing image, keep old content if no new file
+                    const items = currentSidebar === 'left' ? leftSidebarItems : rightSidebarItems;
+                    content = items[currentSidebarItemIndex].content;
+                } else {
+                    alert('Please upload an image');
+                    return;
+                }
+            } else if (type === 'shape') {
+                const shapeType = document.getElementById('sidebarShapeType').value;
+                const shapeColor = document.getElementById('sidebarShapeColor').value;
+                content = { shapeType, shapeColor };
+            }
+            
+            if (content) {
+                const item = { type, content, bgColor };
+                saveSidebarItemToState(item);
+            }
+        });
+
+        // Save sidebar item to state
+        function saveSidebarItemToState(item) {
+            if (currentSidebarItemIndex !== null) {
+                // Editing existing item
+                if (currentSidebar === 'left') {
+                    leftSidebarItems[currentSidebarItemIndex] = item;
+                } else {
+                    rightSidebarItems[currentSidebarItemIndex] = item;
+                }
+            } else {
+                // Adding new item
+                if (currentSidebar === 'left') {
+                    leftSidebarItems.push(item);
+                } else {
+                    rightSidebarItems.push(item);
+                }
+            }
+            renderSidebarItems();
+            document.getElementById('sidebarItemModal').classList.remove('active');
+            saveToStorage();
+            
+            // Reset edit state
+            currentSidebarItemIndex = null;
+        }
+
+        // Close sidebar modal
+        document.getElementById('closeSidebarModal').addEventListener('click', () => {
+            document.getElementById('sidebarItemModal').classList.remove('active');
+            currentSidebarItemIndex = null;
+            saveToStorage();
+        });
+
+        // Add image to gallery
+        document.getElementById('addImageBtn').addEventListener('click', () => {
+            document.getElementById('imageModal').classList.add('active');
+        });
+
+        // Save gallery image
+        document.getElementById('saveImage').addEventListener('click', () => {
+            const upload = document.getElementById('galleryUpload').files[0];
+            const link = document.getElementById('galleryLink').value;
+            
+            if (upload) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    gallery.push({ src: e.target.result, link });
+                    renderGallery();
+                };
+                reader.readAsDataURL(upload);
+            }
+            
+            document.getElementById('imageModal').classList.remove('active');
+            document.getElementById('galleryUpload').value = '';
+            document.getElementById('galleryLink').value = '';
+        });
+
+        // Remove gallery image
+        function removeGalleryImage(index) {
+            gallery.splice(index, 1);
+            renderGallery();
+        }
+
+        // Close image modal
+        document.getElementById('closeImageModal').addEventListener('click', () => {
+            document.getElementById('imageModal').classList.remove('active');
+        });
+
+        // Add text section
+        document.getElementById('addTextBtn').addEventListener('click', () => {
+            currentTextId = null;
+            document.getElementById('textModalTitle').textContent = 'Add Text Section';
+            document.getElementById('textTitle').value = '';
+            document.getElementById('textContent').value = '';
+            document.getElementById('textBgColor').value = 'rgba(255,255,255,0.1)';
+            document.getElementById('textModal').classList.add('active');
+        });
+
+        // Edit text section
+        function editTextSection(index) {
+            currentTextId = index;
+            const section = textSections[index];
+            document.getElementById('textModalTitle').textContent = 'Edit Text Section';
+            document.getElementById('textTitle').value = section.title || '';
+            document.getElementById('textContent').value = section.content;
+            document.getElementById('textBgColor').value = section.bgColor || 'rgba(255,255,255,0.1)';
+            document.getElementById('textModal').classList.add('active');
+        }
+
+        // Remove text section
+        function removeTextSection(index) {
+            textSections.splice(index, 1);
+            renderTextSections();
+        }
+
+        // Save text section
+        document.getElementById('saveText').addEventListener('click', () => {
+            const title = document.getElementById('textTitle').value;
+            const content = document.getElementById('textContent').value;
+            const bgColor = document.getElementById('textBgColor').value;
+            
+            if (content) {
+                if (currentTextId !== null) {
+                    textSections[currentTextId] = { title, content, bgColor };
+                } else {
+                    textSections.push({ title, content, bgColor });
+                }
+                renderTextSections();
+                document.getElementById('textModal').classList.remove('active');
+            }
+        });
+
+        // Close text modal
+        document.getElementById('closeTextModal').addEventListener('click', () => {
+            document.getElementById('textModal').classList.remove('active');
+        });
+
+        // Update URL hint based on platform selection
+        document.getElementById('socialPlatform').addEventListener('change', (e) => {
+            const platform = e.target.value;
+            const customIconUpload = document.getElementById('customIconUpload');
+            const iconShapeSelection = document.getElementById('iconShapeSelection');
+            const urlInput = document.getElementById('socialUrl');
+            const hint = document.getElementById('socialUrlHint');
+            const platformName = platformNames[platform] || 'Social';
+            
+            if (platform === 'other') {
+                customIconUpload.style.display = 'block';
+                iconShapeSelection.style.display = 'block';
+            } else {
+                customIconUpload.style.display = 'none';
+                iconShapeSelection.style.display = 'none';
+            }
+            
+            const hints = {
+                'Instagram': 'https://instagram.com/username',
+                'Twitter/X': 'https://twitter.com/username or https://x.com/username',
+                'TikTok': 'https://tiktok.com/@username',
+                'YouTube': 'https://youtube.com/channel/ID or https://youtube.com/c/channelname',
+                'LinkedIn': 'https://linkedin.com/in/username or https://linkedin.com/company/companyname',
+                'Facebook': 'https://facebook.com/username',
+                'Patreon': 'https://patreon.com/username',
+                'Discord': 'https://discord.gg/invitecode or https://discord.com/invite/invitecode',
+                'Twitch': 'https://twitch.tv/username',
+                'Spotify': 'https://open.spotify.com/user/username or https://open.spotify.com/artist/ID',
+                'Reddit': 'https://reddit.com/user/username or https://reddit.com/r/subreddit',
+                'Snapchat': 'https://snapchat.com/add/username',
+                'Telegram': 'https://t.me/username',
+                'WhatsApp': 'https://wa.me/1234567890',
+                'Viber': 'https://viber.com/username',
+                'WeChat': 'https://weixin.qq.com/username',
+                'Line': 'https://line.me/username',
+                'OnlyFans': 'https://onlyfans.com/username',
+                'FanVue': 'https://fanvue.com/username',
+                'Kickstarter': 'https://kickstarter.com/profile/username',
+                'GitHub': 'https://github.com/username',
+                'Stack Overflow': 'https://stackoverflow.com/users/ID',
+                'Dribbble': 'https://dribbble.com/username',
+                'Behance': 'https://behance.net/username',
+                'Pinterest': 'https://pinterest.com/username',
+                'Medium': 'https://medium.com/@username',
+                'Tumblr': 'https://username.tumblr.com',
+                'Vimeo': 'https://vimeo.com/username',
+                'SoundCloud': 'https://soundcloud.com/username',
+                'Bandcamp': 'https://username.bandcamp.com',
+                'Mixcloud': 'https://mixcloud.com/username',
+                'Steam': 'https://steamcommunity.com/id/username',
+                'Xbox': 'https://xboxgamertag.com',
+                'PlayStation': 'https://psnprofiles.com/username',
+                'Twitch Gaming': 'https://twitch.tv/username'
+            };
+            
+            if (platform !== 'other' && hints[platformName]) {
+                hint.textContent = hints[platformName];
+                urlInput.placeholder = hints[platformName];
+            }
+        });
+
+        // Background settings
+        document.getElementById('bgEditBtn').addEventListener('click', () => {
+            document.getElementById('bgModal').classList.add('active');
+            // Update controls with current settings
+            document.getElementById('bgSize').value = bgSettings.size;
+            document.getElementById('bgRepeat').value = bgSettings.repeat;
+            document.getElementById('bgPosition').value = bgSettings.position;
+            document.getElementById('bgAttachment').value = bgSettings.attachment;
+            
+            // Show/hide image controls based on whether an image is set
+            if (customBackground && customBackground.startsWith('url(')) {
+                document.getElementById('bgImageControls').classList.remove('hidden');
+            } else {
+                document.getElementById('bgImageControls').classList.add('hidden');
+            }
+        });
+
+        // Color options
+        document.querySelectorAll('.color-option').forEach(option => {
+            option.addEventListener('click', () => {
+                const bg = option.dataset.bg;
+                document.getElementById('main-body').style.background = bg;
+                customBackground = bg;
+                document.getElementById('bgImageControls').classList.add('hidden');
+            });
+        });
+
+        // Solid color picker for background
+        document.getElementById('bgSolidColor').addEventListener('input', (e) => {
+            const color = e.target.value;
+            document.getElementById('main-body').style.background = color;
+            customBackground = color;
+            document.getElementById('bgImageControls').classList.add('hidden');
+        });
+
+        // Background upload
+        document.getElementById('bgUpload').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    customBackground = `url(${e.target.result})`;
+                    applyBackgroundSettings();
+                    document.getElementById('bgImageControls').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Background settings controls
+        document.getElementById('bgSize').addEventListener('change', (e) => {
+            bgSettings.size = e.target.value;
+            applyBackgroundSettings();
+        });
+
+        document.getElementById('bgRepeat').addEventListener('change', (e) => {
+            bgSettings.repeat = e.target.value;
+            applyBackgroundSettings();
+        });
+
+        document.getElementById('bgPosition').addEventListener('change', (e) => {
+            bgSettings.position = e.target.value;
+            applyBackgroundSettings();
+        });
+
+        document.getElementById('bgAttachment').addEventListener('change', (e) => {
+            bgSettings.attachment = e.target.value;
+            applyBackgroundSettings();
+        });
+
+        // Clear custom background
+        document.getElementById('clearBg').addEventListener('click', () => {
+            document.getElementById('main-body').style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            document.getElementById('main-body').style.backgroundSize = '';
+            document.getElementById('main-body').style.backgroundRepeat = '';
+            document.getElementById('main-body').style.backgroundPosition = '';
+            document.getElementById('main-body').style.backgroundAttachment = '';
+            customBackground = null;
+            bgSettings = {
+                size: 'cover',
+                repeat: 'no-repeat',
+                position: 'center center',
+                attachment: 'scroll'
+            };
+            document.getElementById('bgImageControls').classList.add('hidden');
+        });
+
+        // Close background modal
+        document.getElementById('closeBgModal').addEventListener('click', () => {
+            document.getElementById('bgModal').classList.remove('active');
+            saveToStorage();
+        });
+
+        // Font settings
+        document.getElementById('fontEditBtn').addEventListener('click', () => {
+            document.getElementById('fontModal').classList.add('active');
+            // Update controls with current settings
+            document.getElementById('fontFamily').value = fontSettings.fontFamily;
+            document.getElementById('textColor').value = fontSettings.color;
+            document.getElementById('fontSize').value = fontSettings.size;
+            document.getElementById('fontWeight').value = fontSettings.weight;
+            document.getElementById('editIndicatorColor').value = fontSettings.editIndicatorColor;
+            document.getElementById('nsfwToggle').checked = isNSFW;
+        });
+
+        // Apply font settings
+        document.getElementById('applyFont').addEventListener('click', () => {
+            fontSettings.fontFamily = document.getElementById('fontFamily').value;
+            fontSettings.color = document.getElementById('textColor').value;
+            fontSettings.size = document.getElementById('fontSize').value;
+            fontSettings.weight = document.getElementById('fontWeight').value;
+            fontSettings.editIndicatorColor = document.getElementById('editIndicatorColor').value;
+            isNSFW = document.getElementById('nsfwToggle').checked;
+            applyFontSettings();
+            applyEditIndicatorColor();
+            handleNSFWStatus();
+            document.getElementById('fontModal').classList.remove('active');
+            saveToStorage();
+        });
+
+        // Close font modal
+        document.getElementById('closeFontModal').addEventListener('click', () => {
+            document.getElementById('fontModal').classList.remove('active');
+        });
+
+        // Close modals on outside click
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                    if (modal.id === 'bgModal' || modal.id === 'fontModal' || modal.id === 'sidebarItemModal') {
+                        saveToStorage();
+                    }
+                    if (modal.id === 'sidebarItemModal') {
+                        currentSidebarItemIndex = null;
+                    }
+                    if (modal.id === 'loginModal') {
+                        document.getElementById('loginUsername').value = '';
+                        document.getElementById('loginPassword').value = '';
+                    }
+                    if (modal.id === 'registerModal') {
+                        document.getElementById('registerUsername').value = '';
+                        document.getElementById('registerEmail').value = '';
+                        document.getElementById('registerPassword').value = '';
+                        document.getElementById('registerConfirmPassword').value = '';
+                    }
+                    if (modal.id === 'forgotPasswordModal') {
+                        document.getElementById('forgotEmail').value = '';
+                    }
+                    if (modal.id === 'resetPasswordModal') {
+                        document.getElementById('resetOTP').value = '';
+                        document.getElementById('resetNewPassword').value = '';
+                        document.getElementById('resetConfirmPassword').value = '';
+                    }
+                }
+            });
+        });
+
+        // Close shape picker modal on outside click
+        document.getElementById('shapePickerModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('shapePickerModal')) {
+                document.getElementById('shapePickerModal').classList.remove('active');
+            }
+        });
+
+        // Close icon picker modal on outside click
+        document.getElementById('iconPickerModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('iconPickerModal')) {
+                document.getElementById('iconPickerModal').classList.remove('active');
+            }
+        });
+
+        // Initialize
+        loadFromStorage();
+        renderLinks();
+        renderGallery();
+        renderTextSections();
+
+        // Check for age confirmation in localStorage
+        const savedAgeConfirmed = localStorage.getItem('ageConfirmed');
+        if (savedAgeConfirmed === 'true') {
+            ageConfirmed = true;
+        }
+
+        // Check for token in URL (Google OAuth callback)
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlToken = urlParams.get('token');
+        const urlUsername = urlParams.get('username');
+        const hash = window.location.hash;
+        let urlUser = null;
+        
+        if (hash && hash.startsWith('#/')) {
+            urlUser = hash.substring(2); // Remove '#/'
+        }
+
+        if (urlToken && urlUsername) {
+            // User just logged in with Google
+            authToken = urlToken;
+            currentUser = urlUsername;
+            isAuthenticated = true;
+            localStorage.setItem('authToken', urlToken);
+            localStorage.setItem('currentUser', urlUsername);
+            
+            // Clear URL parameters but keep hash if present
+            const newUrl = urlUser ? `#/${urlUser}` : window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+            
+            // Load profile and enable edit mode
+            loadProfileFromAPI().then(() => {
+                if (currentUser === profileOwner) {
+                    isEditMode = true;
+                    document.body.classList.add('edit-mode');
+                    document.getElementById('editToggle').innerHTML = '<i class="fas fa-check mr-2"></i>Done Editing';
+                    document.querySelectorAll('.editable').forEach(el => {
+                        el.contentEditable = true;
+                    });
+                    document.getElementById('leftSidebar').classList.remove('hidden');
+                    document.getElementById('rightSidebar').classList.remove('hidden');
+                    renderSidebarItems();
+                }
+            });
+        } else {
+            // Check for saved token in localStorage
+            const savedToken = localStorage.getItem('authToken');
+            const savedUser = localStorage.getItem('currentUser');
+            
+            if (savedToken && savedUser) {
+                authToken = savedToken;
+                currentUser = savedUser;
+                isAuthenticated = true;
+            }
+            
+            // Load profile based on URL or current user
+            loadProfileFromAPI();
+        }
+
+        // Handle window resize for responsive sidebar visibility
+        window.addEventListener('resize', () => {
+            renderSidebarItems();
+        });
+
+        // Handle hash changes for profile navigation
+        window.addEventListener('hashchange', () => {
+            const hash = window.location.hash;
+            if (hash && hash.startsWith('#/')) {
+                const newUsername = hash.substring(2);
+                if (newUsername !== profileOwner) {
+                    profileOwner = newUsername;
+                    loadProfileFromAPI();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
